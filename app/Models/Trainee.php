@@ -17,4 +17,10 @@ class Trainee extends Model
     return $this->image ? asset('storage/' . $this->image) : "storage/trainees/default.png";
 }
 
+    // relations
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_trainees')->withTimestamps()->withPivot('joined_at');
+    }
+
 }
