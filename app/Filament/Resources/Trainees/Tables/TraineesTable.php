@@ -12,9 +12,12 @@ use Filament\Support\Enums\IconSize;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Torgodly\Html2Media\Actions\Html2MediaAction;
+
+use function Livewire\after;
 
 class TraineesTable
 {
@@ -56,12 +59,11 @@ class TraineesTable
                     ->label('')
                     ->iconSize(IconSize::Medium),
                 Html2MediaAction::make('print')
-                    ->content(fn ($record) => view('cards.trainee', ['trainee' => $record]))
+                    ->content(fn ($record) => view('cards.trainee', ['trainees' => [$record]]))
                     ->savePdf()
                     ->print()
                     ->format('a4', 'mm') // A4 format with mm units
                     ->enableLinks() // Enable links in PDF
-                    // ->margins([0, 100, 0, 100])
                     ->filename(filename: 'my-custom-document')
                     ->icon('heroicon-o-identification')
                     ->label('')
@@ -69,9 +71,21 @@ class TraineesTable
 
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
+                // BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                    Html2MediaAction::make('export')
+                        ->accessSelectedRecords()
+                        // ->pageBreakMode( 'div.break-allowed', ['css', 'legacy'])
+                      
+                        ->content(fn (Collection $records) => view('cards.trainee', ['trainees' => $records]))
+                        ->savePdf()
+                        ->format('a4', 'mm') // A4 format with mm units
+                        ->enableLinks() // Enable links in PDF
+                        ->filename(filename: 'trainees-export')
+                        ->icon('heroicon-o-identification')
+                        ->label('Export Selected')
+                        ->iconSize(IconSize::Medium),
+                // ]),
             ]);
     }
 }

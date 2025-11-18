@@ -44,6 +44,13 @@ class TraineeForm
                 Textarea::make('address')
                     ->required()
                     ->columnSpanFull(),
+
+                Select::make('group_id')
+                    ->label('Group')
+                    ->relationship('groups', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->columnSpanFull(), 
             ]);
     }
 }
