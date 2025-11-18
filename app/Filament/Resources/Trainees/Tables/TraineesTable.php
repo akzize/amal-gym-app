@@ -59,9 +59,9 @@ class TraineesTable
                     ->label('')
                     ->iconSize(IconSize::Medium),
                 Html2MediaAction::make('print')
-                    ->content(fn ($record) => view('cards.trainee', ['trainees' => [$record]]))
+                    ->content(fn ($record) => view('cards.trainee', ['trainees' => collect([$record])]))
                     ->savePdf()
-                    ->print()
+                    // ->print()
                     ->format('a4', 'mm') // A4 format with mm units
                     ->enableLinks() // Enable links in PDF
                     ->filename(filename: 'my-custom-document')
@@ -75,12 +75,12 @@ class TraineesTable
                     DeleteBulkAction::make(),
                     Html2MediaAction::make('export')
                         ->accessSelectedRecords()
-                        // ->pageBreakMode( 'div.break-allowed', ['css', 'legacy'])
-                      
                         ->content(fn (Collection $records) => view('cards.trainee', ['trainees' => $records]))
+                        // ->scale(2)
+                        // ->print()
                         ->savePdf()
                         ->format('a4', 'mm') // A4 format with mm units
-                        ->enableLinks() // Enable links in PDF
+                        ->margins(0,0,0,0)
                         ->filename(filename: 'trainees-export')
                         ->icon('heroicon-o-identification')
                         ->label('Export Selected')
