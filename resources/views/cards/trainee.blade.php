@@ -19,7 +19,16 @@
                 flex-direction: column;
                 gap: 18px;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-                aspect-ratio: 16/10;
+                aspect-ratio: 16/10;    
+                margin: 30px;
+
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+
+                /* browser-specific fallbacks */
+                -webkit-column-break-inside: avoid !important;
+                -webkit-region-break-inside: avoid !important;
+                -webkit-page-break-inside: avoid !important;
             }
 
             /* Top Section */
@@ -90,64 +99,70 @@
                 /* width: 90px;
                 height: 90px; */
             }
+
+            .break-allowed {
+                page-break-inside: avoid !important;
+                page-break-after: always;
+            }
+            /* Page Break */
+            .page-break {
+                page-break-after: always;
+            }
+
         </style>
     </head>
 
-    <body class="p-25">
-        <div class="gym-card">
-            <!-- Top Section -->
-            <div class="card-header">
-                <div class="logo bg-white">
-                    <img src="{{ asset("images/bitmap1.png") }}" class="" alt="">
+    <body class="m-25 p-25">
+        @foreach ($trainees as $trainee)
+            <div class="gym-card">
+                <!-- Top Section -->
+                <div class="card-header">
+                    <div class="logo bg-white">
+                        <img src="{{ asset('images/bitmap1.png') }}" class="" alt="">
+                    </div>
+                    <div>
+                        <h2 class="text-gym-text-primary text-lg font-bold leading-tight tracking-wide">AMAL GYM</h2>
+                        <p class="text-gym-text-secondary text-xs font-medium tracking-wider">OUARZAZATE</p>
+                    </div>
                 </div>
-                <div><h2 class="text-gym-text-primary font-bold text-lg tracking-wide leading-tight">AMAL GYM</h2><p class="text-gym-text-secondary text-xs font-medium tracking-wider">OUARZAZATE</p></div>
-            </div>
 
-            <!-- Middle Section -->
-            <div class="card-body">
-                <img src="{{ url($trainee->photo_url) }}"
-                    alt="Member Photo" class="member-photo" />
+                <!-- Middle Section -->
+                <div class="card-body">
+                    <img src="{{ url($trainee->photo_url) }}" alt="Member Photo" class="member-photo" />
 
-                <div class="member-info">
-                    <div class="info-block">
-                        {{-- <label>Full Name</label> --}}
-                        <h3 id="fullName" class="text-gym-text-primary mb-2 truncate text-xl font-bold">{{ $trainee->full_name }}</h3>
-                    </div>
-
-                    <div class="info-block">
-                        <label>Membership Type</label>
-                        <p id="membershipType">Monthly Membership</p>
-                    </div>
-
-                    <div class="info-block w-full flex justify-between">
-                        <div>
-                            <label>Member ID</label>
-                            <p id="memberId">ID-00001</p>
+                    <div class="member-info">
+                        <div class="info-block">
+                            {{-- <label>Full Name</label> --}}
+                            <h3 id="fullName" class="text-gym-text-primary mb-2 truncate text-xl font-bold">
+                                {{ $trainee->full_name }}</h3>
                         </div>
-                        <div>
-                            @php
-                                $qr = tbQuar\Facades\Quar::eye('rounded')->color(235, 12, 83)
-                                ->backgroundColor(13,13,15)
-            ->generate('Quar package create qr code');
-            
-                            @endphp 
-                            {{ $qr }}
+
+                        <div class="info-block">
+                            <label>Membership Type</label>
+                            <p id="membershipType">Monthly Membership</p>
+                        </div>
+
+                        <div class="info-block flex w-full justify-between">
+                            <div>
+                                <label>Member ID</label>
+                                <p id="memberId">ID-00001</p>
+                            </div>
+                            <div>
+                                @php
+                                    $qr = tbQuar\Facades\Quar::eye('rounded')
+                                        ->color(235, 12, 83)
+                                        ->backgroundColor(13, 13, 15)
+                                        ->generate('Quar package create qr code');
+
+                                @endphp
+                                {{ $qr }}
+                            </div>
                         </div>
                     </div>
-
-                    {{-- <div class="info-block">
-                        <label>Access Level</label>
-                        <p id="accessLevel">Full Access</p>
-                    </div> --}}
                 </div>
             </div>
-
-            <!-- Bottom Section -->
-            {{-- <div class="card-footer"> --}}
-                
-                {{-- <img src="https://via.placeholder.com/100" alt="QR Code" class="qr-code" /> --}}
-            {{-- </div> --}}
-        </div>
+            {{-- <div class="page-break" ></div> --}}
+        @endforeach
 
     </body>
 
