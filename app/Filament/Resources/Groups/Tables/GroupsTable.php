@@ -16,12 +16,15 @@ class GroupsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                ->label(__('resources.group.name'))
+                ->searchable(),
                 TextColumn::make('sport.name')
-                    ->sortable(),
+                ->label(__('resources.sport.label'))
+                ->sortable(),
                 TextColumn::make('trainer.name')
-                    ->numeric()
-                    ->sortable(),
+                ->label(__('resources.trainer.label'))
+                ->numeric()
+                ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -14,33 +14,49 @@ class GroupForm
         return $schema
             ->components([
                 TextInput::make('name')
+                ->label(__('resources.group.name'))
                     ->required(),
                 Select::make('sport_id')
+                ->label(__('resources.sport.label'))
                 ->relationship('sport', 'name')
                     ->required()
                     ->createOptionForm([
                         TextInput::make('name')
-                            ->required(),
+                ->label(__('resources.sport.name'))
+
+                    ->required(),
                         TextInput::make('name_ar')
-                            ->required(),
+                ->label(__('resources.sport.name_arabic'))
+
+                    ->required(),
                     ]),
                 Select::make('trainer_id')
-                    ->relationship('trainer', 'name'),
+                ->label(__('resources.trainer.label'))
+
+                ->relationship('trainer', 'name'),
 
                 TextInput::make('monthly_fee')
-                    ->numeric()
+                ->label(__('resources.payment.monthly_fee'))
+
+                ->numeric()
                     ->default(0)
                     ->required(),
                 TextInput::make('insurance_fee')
-                    ->numeric()
+                ->label(__('resources.payment.insurance.all'))
+
+                ->numeric()
                     ->default(0)
                     ->required(),
                 TextInput::make('insurance_profit')
-                    ->numeric()
+                ->label(__('resources.payment.insurance.net'))
+
+                ->numeric()
                     ->default(0)
                     ->required(),
                 TextInput::make('registration_fee')
-                    ->numeric()
+                ->label(__('resources.payment.registratin'))
+
+                ->numeric()
                     ->default(0)
                     ->required(),
                 TextInput::make('max_capacity')

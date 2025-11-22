@@ -20,20 +20,26 @@ class PaymentsTable
                 //     ->numeric()
                 //     ->sortable(),
                 TextColumn::make('trainee.full_name')
+                ->label(__('resources.trainee.label'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('paymentType.name')
+                ->label(__('resources.payment.types.label'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('amount_due')
+                ->label(__('resources.payment.amount_due'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('amount_paid')
+                ->label(__('resources.payment.amount_paid'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('status')
-                    ->badge(),
+                ->label(__('resources.payment.status.label'))
+                ->badge(),
                 TextColumn::make('payment_date')
+                ->label(__('resources.payment.payment_date'))
                     ->dateTime()
                     ->formatStateUsing(fn($state) => $state ? date('d-m-Y', strtotime($state)) : null)
                     ->sortable(),
