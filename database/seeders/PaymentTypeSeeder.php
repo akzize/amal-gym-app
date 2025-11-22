@@ -48,6 +48,7 @@ class PaymentTypeSeeder extends Seeder
                 'name' => 'insurance',
                 'name_ar' => 'التأمين',
                 'description' => 'personal training weekly session',
+                'duration_months' => 6,
             ],
             [
                 'name' => 'custom',

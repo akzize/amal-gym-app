@@ -22,6 +22,24 @@ class SportResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources.sport.pluralModelLabel');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources.sport.modelLabel');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('resources.sport.navigationLabel');
+    }
+    public static function getNavigationGroup(): string
+    {
+        return __('resources.navigationGroups.sport_groupe');
+    }
     public static function form(Schema $schema): Schema
     {
         return SportForm::configure($schema);

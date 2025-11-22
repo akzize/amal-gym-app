@@ -8,4 +8,43 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "Inter", system-ui, sans-serif;
+    --font-arabic: "Cairo", system-ui, sans-serif;
+
+    --color-background: hsl(0 0% 100%);
+    --color-foreground: hsl(222 20% 15%);
+
+    --color-card: hsl(0 0% 98%);
+    --color-card-foreground: hsl(222 20% 15%);
+
+    --color-popover: hsl(0 0% 100%);
+    --color-popover-foreground: hsl(222 20% 15%);
+
+    --color-primary: hsl(0 65% 45%);
+    --color-primary-foreground: hsl(0 0% 100%);
+
+    --color-secondary: hsl(0 0% 95%);
+    --color-secondary-foreground: hsl(222 20% 15%);
+
+    --color-muted: hsl(0 0% 96%);
+    --color-muted-foreground: hsl(222 15% 45%);
+
+    --color-border: hsl(0 0% 90%);
+    --color-ring: hsl(0 65% 45%);
+
+    --radius-lg: 0.5rem;
+    --radius-md: calc(0.5rem - 2px);
+    --radius-sm: calc(0.5rem - 4px);
+}
+
+@utility section-padding {
+    @apply py-16 md:py-24;
+}
+
+@utility container-custom {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+@utility hover-lift {
+    @apply transition-all duration-200 hover:-translate-y-1;
 }

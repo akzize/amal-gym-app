@@ -22,6 +22,25 @@ class TrainerResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources.trainer.pluralModelLabel');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources.trainer.modelLabel');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('resources.trainer.navigationLabel');
+    }
+
+    public static function getNavigationGroup(): string
+    {
+        return __('resources.navigationGroups.training');
+    }
     public static function form(Schema $schema): Schema
     {
         return TrainerForm::configure($schema);

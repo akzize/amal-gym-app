@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Payments\Schemas;
 
 use App\Models\Group;
 use App\Models\Payment;
+use App\Models\PaymentType;
 use App\Models\Trainee;
 use Dom\Text;
 use Filament\Forms\Components\DatePicker;
@@ -30,6 +31,7 @@ class PaymentForm
                 //! i may need to add the group here later, in case the trainee has multiple groups
                 Select::make('payment_type_id')
                     ->relationship('paymentType', 'name')
+                    ->label(__('resources.payment.types.label'))
                     ->live(onBlur: true)
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
@@ -52,6 +54,8 @@ class PaymentForm
                             $set('amount_due', $group ? $group->monthly_fee : 0);
                         } else if ($selected_type && $selected_type == Payment::TYPE_INSURANCE) {
                             $set('amount_due', $group ? $group->insurance_fee : 0);
+                            $insuranceDurationMonths = PaymentType::find($selected_type)->duration_months;
+                            $set('custom_duration_months', $insuranceDurationMonths);
                         } else if ($selected_type && $selected_type == Payment::TYPE_INSCRIPTION) {
                             $set('amount_due', $group ? $group->registration_fee : 0);
                         }
@@ -59,6 +63,7 @@ class PaymentForm
                     ->required(),
                 Select::make('trainee_id')
                     ->relationship('trainee', 'full_name')
+                    ->label(__('resources.trainee.label'))
                     ->searchable()
                     ->live()
                     ->partiallyRenderComponentsAfterStateUpdated(['payment_type_id', 'group_id'])
@@ -66,7 +71,7 @@ class PaymentForm
                     ->preload(),
                 // Group select in case the trainee has multiple groups
                 Select::make('group_id')
-                    ->label('Group')
+                    ->label(__('resources.group.label'))
                     ->options(function (callable $get, $set) {
                         $traineeId = $get('trainee_id');
                         $trainee = Trainee::find($traineeId);
@@ -98,11 +103,12 @@ class PaymentForm
                 // field to determine how many months to add for custom subscription
                 TextInput::make('custom_duration_months')
                     ->label('Custom Subscription Duration (Months)')
+                    ->label(__('resources.payment.custom_duration_months'))
                     ->numeric()
                     ->default(1)
                     ->minValue(1)
                     ->hiddenOn('edit')
-                    ->visible(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_CUSTOM)
+                    ->visible(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_CUSTOM || $get('payment_type_id') == Payment::TYPE_INSURANCE)
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         // you can add any logic here if needed when custom duration changes
@@ -112,7 +118,8 @@ class PaymentForm
                         $set('subscription.end_date', Date::parse($get('subscription.start_date'))->addMonths($monthsNumber));
 
                         $groupID = $get('group_id');
-                        if ($groupID) {
+                        $selected_type = $get('payment_type_id');
+                        if ($groupID && $selected_type == Payment::TYPE_CUSTOM) {
                             $group = Group::find($groupID);
                             $amount_due = $group ? $group->monthly_fee * $monthsNumber : 0;
                             $set('amount_due', $amount_due);
@@ -124,7 +131,7 @@ class PaymentForm
                     ->schema([
                         // subscription start and end date
                         DatePicker::make('subscription.start_date')
-                            ->label('Subscription Start Date')
+                            ->label(__('resources.subscription.start_date'))
                             ->native(false)
                             ->afterStateHydrated(function ($state, callable $set, $livewire) {
                                 $set(
@@ -145,7 +152,7 @@ class PaymentForm
                             ->reactive()
                             ->visible(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_INSURANCE || $get('payment_type_id') == Payment::TYPE_CUSTOM),
                         DatePicker::make('subscription.end_date')
-                            ->label('Subscription End Date')
+                            ->label(__('resources.subscription.start_date'))
                             ->native(false)
                             ->after('subscription.start_date')
                             ->afterStateHydrated(function ($state, callable $set, $livewire) {
@@ -173,17 +180,20 @@ class PaymentForm
                     ->columnSpanFull()
                     ->schema([
                         TextInput::make('amount_due')
+                            ->label(__('resources.payment.amount_due'))
                             ->hidden(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_ONE_SESSION)
                             ->default(0)
                             ->required()
                             ->disabledOn('edit')
                             ->numeric(),
                         TextInput::make('amount_paid')
+                            ->label(__('resources.payment.amount_paid'))
                             ->required()
                             ->numeric(),
                     ]),
                 // rest
                 TextInput::make('payment_remaining')
+                    ->label(__('resources.payment.remaining_amount'))
                     ->required()
                     ->visibleOn('edit')
                     ->disabled(true)
@@ -195,14 +205,17 @@ class PaymentForm
                     })
                     ->numeric(),
                 Select::make('status')
-                    ->options(['paid' => 'Paid', 'unpaid' => 'Unpaid', 'partial' => 'Partial', 'free' => 'Free'])
+                    ->label(__('resources.payment.status.label'))
+                    ->options(['paid' => __('resources.payment.status.paid'), 'unpaid' => __('resources.payment.status.unpaid'), 'partial' => __('resources.payment.status.partial'), 'free' => __('resources.payment.status.free')])
                     ->default('unpaid')
                     ->required(),
                 DatePicker::make('payment_date')
+                    ->label(__('resources.payment.payment_date'))
                     ->native(false)
                     ->default(fn() => Date::now())
                     ->required(),
                 Textarea::make('notes')
+                    ->label(__('resources.notes'))
                     ->columnSpanFull(),
             ]);
     }

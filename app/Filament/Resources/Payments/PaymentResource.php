@@ -22,7 +22,25 @@ class PaymentResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'trainee.full_name';
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources.payment.pluralModelLabel');
+    }
 
+    public static function getModelLabel(): string
+    {
+        return __('resources.payment.modelLabel');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('resources.payment.navigationLabel');
+    }
+    // 
+    public static function getNavigationGroup(): string
+    {
+        return __('resources.navigationGroups.subscriptions');
+    }
     public static function form(Schema $schema): Schema
     {
         return PaymentForm::configure($schema);

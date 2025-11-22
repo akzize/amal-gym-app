@@ -19,7 +19,28 @@ class GroupResource extends Resource
 {
     protected static ?string $model = Group::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources.group.pluralModelLabel');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources.group.modelLabel');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        // return __('resources.group.navigationLabel');
+        return __('resources.group.navigationLabel');
+    }
+
+    public static function getNavigationGroup(): string
+    {
+        return __('resources.navigationGroups.sport_groupe');
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 
