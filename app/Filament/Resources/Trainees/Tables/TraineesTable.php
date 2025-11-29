@@ -26,18 +26,24 @@ class TraineesTable
         return $table
             ->columns([
                 ImageColumn::make('photo_url')
+                    ->label(__('resources.trainee.avatar'))
                     ->circular()
                     ->defaultImageUrl(url('storage/trainees/default.png')),
                 TextColumn::make('full_name')
+                    ->label(__('resources.trainee.full_name'))
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 TextColumn::make('full_arabic_name')
+                    ->label(__('resources.trainee.full_arabic_name'))
                     ->searchable(),
-                TextColumn::make('gender')
-                    ->badge(),
                 TextColumn::make('dob')
+                    ->label(__('resources.trainee.dob'))
                     ->date()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 TextColumn::make('phone')
+                    ->label(__('resources.trainee.phone'))
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -59,7 +65,7 @@ class TraineesTable
                     ->label('')
                     ->iconSize(IconSize::Medium),
                 Html2MediaAction::make('print')
-                    ->content(fn ($record) => view('cards.trainee', ['trainees' => collect([$record])]))
+                    ->content(fn($record) => view('cards.trainee', ['trainees' => collect([$record])]))
                     ->savePdf()
                     // ->print()
                     ->format('a4', 'mm') // A4 format with mm units
@@ -71,21 +77,19 @@ class TraineesTable
 
             ])
             ->toolbarActions([
-                // BulkActionGroup::make([
+                BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     Html2MediaAction::make('export')
+                        ->label(__('resources.trainee.actions.export_selected_trainees'))
                         ->accessSelectedRecords()
-                        ->content(fn (Collection $records) => view('cards.trainee', ['trainees' => $records]))
-                        // ->scale(2)
-                        // ->print()
+                        ->content(fn(Collection $records) => view('cards.trainee', ['trainees' => $records]))
                         ->savePdf()
                         ->format('a4', 'mm') // A4 format with mm units
-                        ->margins(0,0,0,0)
+                        ->margins(0, 0, 0, 0)
                         ->filename(filename: 'trainees-export')
                         ->icon('heroicon-o-identification')
-                        ->label('Export Selected')
                         ->iconSize(IconSize::Medium),
-                // ]),
+                ]),
             ]);
     }
 }

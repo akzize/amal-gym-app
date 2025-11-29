@@ -27,6 +27,7 @@ class PaymentInstallmentsRelationManager extends RelationManager
         return $schema
             ->components([
                 TextInput::make('amount_paid')
+                    ->label(__('resources.payment.amount_paid'))
                     ->columnSpanFull()
                     ->required()
                     ->numeric()
@@ -48,6 +49,7 @@ class PaymentInstallmentsRelationManager extends RelationManager
                     ]),
 
                 DatePicker::make('paid_at')
+                    ->label(__('resources.payment.paid_at'))
                     ->columnSpanFull()
                     ->required()
                     ->native(false)
@@ -59,11 +61,16 @@ class PaymentInstallmentsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('payment_id')
+            ->modelLabel(__('resources.payment.modelLabel'))
+            ->pluralModelLabel(__('resources.payment.pluralModelLabel'))
+            ->heading(__('resources.payment.pluralModelLabel'))
             ->columns([
                 TextColumn::make('amount_paid')
+                    ->label(__('resources.payment.amount_paid'))
                     ->money('MAD', true)
                     ->sortable(),
                 TextColumn::make('paid_at')
+                    ->label(__('resources.payment.paid_at'))
                     ->date(),
             ])
             ->filters([
