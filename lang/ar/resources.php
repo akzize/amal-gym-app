@@ -69,6 +69,7 @@ return [
         'due_date' => 'تاريخ الاستحقاق',
         'registratin' => 'رسوم التسجيل',
         'custom_duration_months' => 'مدة الاشتراك المخصصة (بالشهور)',
+        'applies_to_date' => '	تاريخ الاستحقاق'
 
     ],
     'subscription' => [

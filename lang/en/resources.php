@@ -61,6 +61,7 @@ return [
             'paid' => 'Paid',
             'unpaid' => 'Unpaid',
             'partial' => 'Partial',
+            'free' => 'Free'
         ],
         'monthly_fee' => 'Monthly Fees',
         'yearly_fee' => 'Yearly Fees',
