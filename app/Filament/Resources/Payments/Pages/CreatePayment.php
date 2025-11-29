@@ -10,6 +10,8 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class CreatePayment extends CreateRecord
@@ -29,83 +31,67 @@ class CreatePayment extends CreateRecord
         ];
     }
 
-    // protected function beforeValidate()
-    // {
-    //     $data = $this->form->getState();
-
-    //     $new_start = $data['subscription']['start_date'] ?? null;
-    //     $new_end   = $data['subscription']['end_date'] ?? null;
-
-    //     if (! $new_start || ! $new_end) return;
-
-    //     $exists = Subscription::query()
-    //         ->where('trainee_id', $data['trainee_id'])
-    //         ->where('payment_type_id', $data['payment_type_id'])
-    //         ->where(function ($q) use ($new_start, $new_end) {
-    //             $q->whereDate('start_date', '<=', $new_end)
-    //                 ->whereDate('end_date', '>=', $new_start);
-    //         })
-    //         ->exists();
-
-    //     if ($exists) {
-    //         // $this->dispatch('open-modal', id: 'subscriptionConflictModal');
-    //         // $this->halt();
-
-    //         throw ValidationException::withMessages([
-    //             // attach message to a field visible on the form
-    //             'subscription.start_date' => 'A subscription already exists for this trainee and payment type in the selected date range.',
-    //         ]);
-    //     }
-    // }
-    protected function mutateFormDataBeforeCreate(array $data): array
+    protected function handleRecordCreation(array $data): Model
     {
-        // handle payment creation logic here according to payment type
-        if ($data['payment_type_id'] == Payment::TYPE_INSURANCE) {
-            // check if the subscription is already created for this trainee and payment type in that date
-            $this->isSubscriptionCreated($data);
+        // We use a database transaction to ensure atomicity:
+        // If the subscription is created but the payment fails, everything is rolled back.
+        $payment = DB::transaction(
+            function () use ($data) {
 
-            // create subscription logic
-            $subscription = Subscription::createOrFirst([
-                'trainee_id' => $data['trainee_id'],
-                'payment_type_id' => $data['payment_type_id'],
-                'start_date' => $data['subscription']['start_date'],
-                'end_date' => $data['subscription']['end_date'],
-                'duration_months' => 6,
-                'status' => 'active',
-            ]);
+                $subscription = null;
 
-            // unset subscription data from payment data
-            unset($data['subscription']);
-        } else if ($data['payment_type_id'] == Payment::TYPE_CUSTOM) {
-            // check if the subscription is already created for this trainee and payment type in that date
-            $this->isSubscriptionCreated($data);
-            // create subscription logic
-            Subscription::createOrFirst([
-                'trainee_id' => $data['trainee_id'],
-                'group_id' => $data['group_id'],
-                'payment_type_id' => $data['payment_type_id'],
-                'start_date' => $data['subscription']['start_date'],
-                'end_date' => $data['subscription']['end_date'],
-                'duration_months' => $data['custom_duration_months'],
-                'status' => 'active',
-            ]);
+                // --- 1. SUBSCRIPTION CREATION LOGIC ---
+                if ($data['payment_type_id'] == Payment::TYPE_INSURANCE) {
+                    // Check for existing subscription (assuming isSubscriptionCreated throws an exception if found)
+                    $this->isSubscriptionCreated($data);
 
-            // unset subscription data from payment data
-            unset($data['subscription'], $data['custom_duration_months']);
-        } else if ($data['payment_type_id'] == Payment::TYPE_ONE_SESSION) {
-            $data['amount_due'] = $data['amount_paid'];
-        }
+                    $subscription = Subscription::createOrFirst([
+                        'trainee_id' => $data['trainee_id'],
+                        'payment_type_id' => $data['payment_type_id'],
+                        'start_date' => $data['subscription']['start_date'],
+                        'end_date' => $data['subscription']['end_date'],
+                        'duration_months' => 6,
+                        'status' => 'active',
+                    ]);
 
-        // create payment installment if amount paid is less than amount due
-            if ($data['amount_paid'] < $data['amount_due']) {
-                
-                // PaymentInstallment::create([
-                //     'payment_id' => $payment->id,
-                //     'amount_due' => $data['amount_due'] - $data['amount_paid'],
-                //     'due_date' => now()->addMonth(), // example due date
-                // ]);
+                    // unset subscription data from payment data
+                    unset($data['subscription']);
+                } elseif ($data['payment_type_id'] == Payment::TYPE_CUSTOM) {
+                    // Check for existing subscription
+                    $this->isSubscriptionCreated($data);
+
+                    $subscription = Subscription::createOrFirst([
+                        'trainee_id' => $data['trainee_id'],
+                        'group_id' => $data['group_id'],
+                        'payment_type_id' => $data['payment_type_id'],
+                        'start_date' => $data['subscription']['start_date'],
+                        'end_date' => $data['subscription']['end_date'],
+                        'duration_months' => $data['custom_duration_months'],
+                        'status' => 'active',
+                    ]);
+
+                    // unset subscription data from payment data
+                    unset($data['subscription']);
+                } elseif ($data['payment_type_id'] == Payment::TYPE_ONE_SESSION) {
+                    $data['amount_due'] = $data['amount_paid'];
+                }
+
+                // Update the data array for Payment creation
+                if ($subscription) {
+                    $data['subscription_id'] = $subscription->id;
+                }
+
+                // Unset fields used only for logic
+                unset($data['subscription']);
+                unset($data['custom_duration_months']);
+
+                // --- 2. PAYMENT CREATION ---
+                // Create the main Payment record within the transaction
+                $payment = static::getModel()::create($data);
+                return $payment;
             }
-        return parent::mutateFormDataBeforeCreate($data);
+        );
+        return $payment;
     }
 
     private function isSubscriptionCreated($data)
