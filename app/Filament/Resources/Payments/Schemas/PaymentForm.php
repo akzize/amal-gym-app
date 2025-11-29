@@ -30,8 +30,9 @@ class PaymentForm
                     ->relationship('subscription', 'id'),
                 //! i may need to add the group here later, in case the trainee has multiple groups
                 Select::make('payment_type_id')
-                    ->relationship('paymentType', 'name')
                     ->label(__('resources.payment.types.label'))
+                    ->relationship('paymentType', 'name')
+                    ->disabledOn('edit')
                     ->live(onBlur: true)
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
@@ -48,6 +49,7 @@ class PaymentForm
                         }
 
                         $groupId = $get('group_id');
+                        $insuranceDurationMonths = 1;
                         $group = $groupId ? Group::find($groupId) : null;
                         $selected_type = $get('payment_type_id');
                         if ($selected_type && $selected_type == Payment::TYPE_MONTHLY) {
@@ -55,15 +57,22 @@ class PaymentForm
                         } else if ($selected_type && $selected_type == Payment::TYPE_INSURANCE) {
                             $set('amount_due', $group ? $group->insurance_fee : 0);
                             $insuranceDurationMonths = PaymentType::find($selected_type)->duration_months;
-                            $set('custom_duration_months', $insuranceDurationMonths);
                         } else if ($selected_type && $selected_type == Payment::TYPE_INSCRIPTION) {
                             $set('amount_due', $group ? $group->registration_fee : 0);
+                        }
+
+                        // initial update of the subscription end date
+                        if ($selected_type && ($selected_type == Payment::TYPE_INSURANCE || $selected_type == Payment::TYPE_CUSTOM)) {
+                            $set('custom_duration_months', $insuranceDurationMonths);
+                            $start_date = $get('subscription.start_date');
+                            $set('subscription.end_date', Date::parse($start_date)->addMonths($insuranceDurationMonths));
                         }
                     })
                     ->required(),
                 Select::make('trainee_id')
-                    ->relationship('trainee', 'full_name')
                     ->label(__('resources.trainee.label'))
+                    ->disabledOn('edit')
+                    ->relationship('trainee', 'full_name')
                     ->searchable()
                     ->live()
                     ->partiallyRenderComponentsAfterStateUpdated(['payment_type_id', 'group_id'])
@@ -72,6 +81,8 @@ class PaymentForm
                 // Group select in case the trainee has multiple groups
                 Select::make('group_id')
                     ->label(__('resources.group.label'))
+                    ->disabledOn('edit')
+
                     ->options(function (callable $get, $set) {
                         $traineeId = $get('trainee_id');
                         $trainee = Trainee::find($traineeId);
@@ -107,6 +118,7 @@ class PaymentForm
                     ->numeric()
                     ->default(1)
                     ->minValue(1)
+                    ->disabledOn('edit')
                     ->hiddenOn('edit')
                     ->visible(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_CUSTOM || $get('payment_type_id') == Payment::TYPE_INSURANCE)
                     ->reactive()
@@ -133,6 +145,7 @@ class PaymentForm
                         DatePicker::make('subscription.start_date')
                             ->label(__('resources.subscription.start_date'))
                             ->native(false)
+                            ->disabledOn('edit')
                             ->afterStateHydrated(function ($state, callable $set, $livewire) {
                                 $set(
                                     'subscription.start_date',
@@ -142,7 +155,7 @@ class PaymentForm
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                 // if custom duration months is set, update end date based on start date + custom months
                                 $paymentTypeId = $get('payment_type_id');
-                                if ($paymentTypeId == Payment::TYPE_CUSTOM) {
+                                if ($paymentTypeId == Payment::TYPE_CUSTOM || $paymentTypeId == Payment::TYPE_INSURANCE) {
                                     $monthsNumber = $get('custom_duration_months');
                                     if ($monthsNumber) {
                                         $set('subscription.end_date', Date::parse($state)->addMonths($monthsNumber));
@@ -152,9 +165,10 @@ class PaymentForm
                             ->reactive()
                             ->visible(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_INSURANCE || $get('payment_type_id') == Payment::TYPE_CUSTOM),
                         DatePicker::make('subscription.end_date')
-                            ->label(__('resources.subscription.start_date'))
+                            ->label(__('resources.subscription.end_date'))
                             ->native(false)
                             ->after('subscription.start_date')
+                            ->disabledOn('edit')
                             ->afterStateHydrated(function ($state, callable $set, $livewire) {
                                 $set(
                                     'subscription.end_date',
@@ -189,6 +203,7 @@ class PaymentForm
                         TextInput::make('amount_paid')
                             ->label(__('resources.payment.amount_paid'))
                             ->required()
+                            ->disabledOn('edit')
                             ->numeric(),
                     ]),
                 // rest
@@ -208,11 +223,19 @@ class PaymentForm
                     ->label(__('resources.payment.status.label'))
                     ->options(['paid' => __('resources.payment.status.paid'), 'unpaid' => __('resources.payment.status.unpaid'), 'partial' => __('resources.payment.status.partial'), 'free' => __('resources.payment.status.free')])
                     ->default('unpaid')
+                    ->disabledOn('edit')
+                    ->required(),
+                DatePicker::make('applies_to_date')
+                    ->label(__('resources.payment.applies_to_date'))
+                    ->default(fn() => Date::now())
+                    ->displayFormat('F Y')
+                    ->disabledOn('edit')
+                    ->visible(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_MONTHLY)
                     ->required(),
                 DatePicker::make('payment_date')
                     ->label(__('resources.payment.payment_date'))
-                    ->native(false)
                     ->default(fn() => Date::now())
+                    ->disabledOn('edit')
                     ->required(),
                 Textarea::make('notes')
                     ->label(__('resources.notes'))

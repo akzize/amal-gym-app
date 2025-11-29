@@ -12,6 +12,7 @@ class Payment extends Model
     const STATUS_UNPAID = 'unpaid';
     const STATUS_PAID = 'paid';
     const STATUS_PARTIAL = 'partial';
+    const STATUS_FREE = 'free';
 
     // payment types
     const TYPE_MONTHLY = 1; #'monthly';
@@ -28,7 +29,7 @@ class Payment extends Model
             if ($payment->amount_paid < $payment->amount_due) {
                 PaymentInstallment::create([
                     'payment_id' => $payment->id,
-                    'amount_paid' => $payment->amount_due - $payment->amount_paid,
+                    'amount_paid' => $payment->amount_paid,
                     'paid_at' => now(),
                 ]);
             }   
