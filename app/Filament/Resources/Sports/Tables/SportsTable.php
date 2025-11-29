@@ -16,8 +16,10 @@ class SportsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                ->label(__('resources.sport.name'))
+                ->searchable(),
                 TextColumn::make('name_ar')
+                ->label(__('resources.sport.name_arabic'))
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()

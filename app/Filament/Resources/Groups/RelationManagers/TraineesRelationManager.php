@@ -20,6 +20,8 @@ use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\IconSize;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -56,23 +58,29 @@ class TraineesRelationManager extends RelationManager
         return $schema
             ->components([
                 ImageEntry::make('photo_url')
+                    ->label(__('resources.trainee.avatar'))
                     ->placeholder('-'),
-                TextEntry::make('full_name'),
-                TextEntry::make('full_arabic_name')
+                TextEntry::make('full_name')
+                    ->label(__('resources.trainee.full_name')),
+                    TextEntry::make('full_arabic_name')
+                    ->label(__('resources.trainee.full_arabic_name'))
                     ->placeholder(placeholder: '-'),
                 TextEntry::make('gender')
                     ->badge(),
                 TextEntry::make('dob')
+                    ->label(__('resources.trainee.dob'))
                     ->date(),
-                TextEntry::make('phone'),
+                TextEntry::make('phone')
+                    ->label(__('resources.trainee.phone')),
                 TextEntry::make('address')
+                    ->label(__('resources.trainee.address'))
                     ->columnSpanFull(),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-'),
+                // TextEntry::make('created_at')
+                //     ->dateTime()
+                //     ->placeholder('-'),
+                // TextEntry::make('updated_at')
+                //     ->dateTime()
+                //     ->placeholder('-'),
             ]);
     }
 
@@ -80,22 +88,32 @@ class TraineesRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('full_name')
+            ->modelLabel(__('resources.trainee.modelLabel'))
+            ->pluralModelLabel(__('resources.trainee.pluralModelLabel'))
+            ->heading(__('resources.trainee.pluralModelLabel'))
             ->columns([
                 ImageColumn::make('photo_url')
+                    ->label(__('resources.trainee.avatar'))
                     ->defaultImageUrl(url('storage/trainees/default.png'))
                     ->circular(),
                 TextColumn::make('full_name')
+                    ->label(__('resources.trainee.full_name'))
                     ->searchable(),
                 TextColumn::make('full_arabic_name')
+                    ->label(__('resources.trainee.full_arabic_name'))
                     ->searchable(),
                 TextColumn::make('gender')
+                    ->label(__('resources.trainee.gender'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->badge(),
                 TextColumn::make('dob')
+                    ->label(__('resources.trainee.dob'))
                     ->date()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 TextColumn::make('phone')
+                    ->label(__('resources.trainee.avatar'))
+
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -110,16 +128,21 @@ class TraineesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
                 AttachAction::make()
-                ->preloadRecordSelect()
-                ->multiple(),
+                    ->label(__('resources.trainee.actions.add_to_group'))
+                    ->preloadRecordSelect()
+                    ->multiple(),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DetachAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->label('')
+                    ->iconSize(IconSize::Medium),
+                DetachAction::make()
+                    ->label('')
+                    ->iconSize(IconSize::Medium),
+                DeleteAction::make()
+                    ->label('')
+                    ->iconSize(IconSize::Medium),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

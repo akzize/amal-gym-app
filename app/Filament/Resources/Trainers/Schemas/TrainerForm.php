@@ -17,10 +17,10 @@ class TrainerForm
     {
         return $schema
             ->components([
-                Section::make('Login Credentials')
+                Section::make(__('resources.trainer.login_credentials'))
                     ->afterHeader([
                         Toggle::make('edit_login')
-                            ->label('Edit Login Credentials')
+                            ->label(__('resources.trainer.edit_login_credentials'))
                             ->default(false)
                             ->reactive()
                             ->visibleOn('edit')
@@ -29,11 +29,12 @@ class TrainerForm
                     ->schema([
                         Hidden::make('user_id'),
                         TextInput::make('name')
+                            ->label(__('resources.trainer.name'))
                             ->disabled(fn(callable $get) => !$get('edit_login'))
                             ->dehydrated(fn(callable $get) => $get('edit_login'))
                             ->required(fn(callable $get) => $get('edit_login')),
                         TextInput::make('user.email')
-                            ->label('Email')
+                            ->label(__('resources.trainer.email'))
                             ->disabled(fn(callable $get) => !$get('edit_login'))
                             ->dehydrated(fn(callable $get) => $get('edit_login'))
                             ->email()
@@ -41,7 +42,7 @@ class TrainerForm
                             ->unique(User::class, 'email', fn($record) => $record?->user),
 
                         TextInput::make('user.password')
-                            ->label('Password')
+                            ->label(__('resources.trainer.password'))
                             ->disabled(fn(callable $get) => !$get('edit_login'))
                             ->dehydrated(fn(callable $get) => $get('edit_login'))
                             ->password()
@@ -50,26 +51,34 @@ class TrainerForm
                             ->required(fn(callable $get) => $get('edit_login')),
                     ]),
 
-                Section::make('Payment info')
+                Section::make(__('resources.trainer.Payment info'))
                     ->schema([
+                        // 'salary_type' label will be automatically translated
                         Select::make('salary_type')
+                            ->label(__('resources.trainer.salary_type'))
+
                             ->options([
-                                'fixed' => 'Fixed',
-                                'per_group' => 'Per group',
-                                'per_trainee' => 'Per trainee',
-                                'none' => 'None',
+                                'fixed' => __('resources.trainer.fixed'),         // Added __()
+                                'per_group' => __('resources.trainer.per_group'),   // Added __()
+                                'per_trainee' => __('resources.trainer.per_trainee'), // Added __()
+                                'none' => __('resources.trainer.none'),           // Added __()
                             ])
                             ->required(),
+                        // 'salary_amount' label will be automatically translated
                         TextInput::make('salary_amount')
+                            ->label(__('resources.trainer.salary_amount'))
                             ->numeric(),
+
+                        // 'status' label will be automatically translated
                         Select::make('status')
-                            ->options(['active' => 'Active', 'inactive' => 'Inactive'])
+                            ->options(['active' => __('resources.trainer.active'), 'inactive' => __('resources.trainer.inactive')]) // Added __()
                             ->default('active')
                             ->required(),
                     ]),
 
                 // groups 
                 Select::make('groups')
+                    ->label(__('resources.trainer.groups')) // Added __() for explicit clarity, although often automatic
                     ->relationship('groups', 'name')
                     ->multiple()
                     ->preload()
@@ -77,6 +86,7 @@ class TrainerForm
                     ->columnSpanFull(),
 
                 Textarea::make('notes')
+                    ->label(__('resources.trainer.notes')) // Added __() for explicit clarity
                     ->columnSpanFull(),
             ]);
     }

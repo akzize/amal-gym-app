@@ -67,6 +67,7 @@ return [
         'yearly_fee' => 'الرسوم السنوية',
         'inscription' => 'رسوم التسجيل',
         'due_date' => 'تاريخ الاستحقاق',
+        'paid_at' => 'تاريخ الدفع',
         'registratin' => 'رسوم التسجيل',
         'custom_duration_months' => 'مدة الاشتراك المخصصة (بالشهور)',
         'applies_to_date' => '	تاريخ الاستحقاق'
@@ -87,13 +88,30 @@ return [
         ],
     ],
     'trainee' => [
-        'label' => 'المتدرب',
-        'modelLabel' => 'المتدرب',
-        'navigationLabel' => 'المتدربين',
-        'pluralModelLabel' => 'المتدربين',
+        'label' => 'ممارس', 
+        'modelLabel' => 'الممارس',
+        'navigationLabel' => 'الممارسين',
+        'pluralModelLabel' => 'الممارسين', 
         'full_name' => 'الاسم الكامل',
         'first_name' => 'الاسم الشخصي',
-        'last_name' => 'الاسم العائلي'
+        'last_name' => 'الاسم العائلي',
+        'name' => 'الاسم الكامل',
+        'email' => 'البريد الإلكتروني',
+        'full_arabic_name' => 'الاسم الكامل (بالعربية)',
+        'phone' => 'الهاتف',
+        'whatsap_number' => 'رقم الواتساب',
+        'increment_contract_number' => 'رقم عقد الإزدياد',
+        'address' => 'العنوان',
+        'dob' => 'تاريخ الميلاد',
+        'role' => 'الدور',
+        'avatar' => 'الصورة الشخصية',
+        'group' => 'المجموعة',
+        'gender' => 'الجنس',
+
+        'actions' => [
+            'export_selected_trainees' => 'تحميل المتدربين المحددين',
+            'add_to_group' => 'اضافة الى المجموعة'
+        ]
     ],
     'sport' => [
         'label' => 'الرياضة',
@@ -125,5 +143,24 @@ return [
         'gym_salle' => 'الصالة الرياضية',
         'payment_percent' => 'نسبة الدفع',
         'price_for_each_student' => 'السعر لكل ممارس',
+        "salary_type" => "نوع الراتب",
+        "salary_amount" => "مبلغ الراتب",
+
+        "login_credentials" => "بيانات تسجيل الدخول",
+        "edit_login_credentials" => "تعديل بيانات تسجيل الدخول",
+        "email" => "البريد الإلكتروني",
+        "password" => "كلمة المرور",
+        "Payment info" => "معلومات الدفع",
+        "fixed" => "ثابت",
+        "per_group" => "لكل مجموعة",
+        "per_trainee" => "لكل متدرب",
+        "none" => "لا يوجد",
+        "active" => "نشط",
+        "inactive" => "غير نشط",
+        "groups" => "المجموعات",
+        "notes" => "ملاحظات"
+
+
+
     ],
 ];

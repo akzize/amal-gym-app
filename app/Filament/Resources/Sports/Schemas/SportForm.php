@@ -12,8 +12,10 @@ class SportForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label(__('resources.sport.name'))
                     ->required(),
                 TextInput::make('name_ar')
+                    ->label(__('resources.sport.name_arabic'))
                     ->required(),
             ]);
     }

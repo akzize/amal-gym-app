@@ -20,7 +20,7 @@ class TraineeResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'full_name';
+    protected static ?string $recordTitleAttribute = 'full_arabic_name';
 
     public static function getPluralModelLabel(): string
     {
