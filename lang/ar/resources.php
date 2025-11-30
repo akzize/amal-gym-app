@@ -1,6 +1,8 @@
 <?php
 return [
     'notes' => 'ملاحظات',
+    'created_at' => 'تاريخ الإنشاء',
+    'updated_at' => 'تاريخ التحديث',
     'navigationGroups' => [
         'management' => 'إدارة البيانات',
         'subscriptions' => 'إدارة الاشتراكات',
@@ -14,6 +16,24 @@ return [
         'training' => 'إدارة المدربين والممارسين',
         'sport_groupe' => 'إدارة المجموعات الرياضية',
         'salle_association' => 'إدارة الصالات والجمعيات',
+    ],
+    'association' => [
+        'singule' => 'الجمعية',
+        'plural' => 'جمعيات',
+        'label' => 'جمعية',
+        'pluralModelLabel' => 'الجمعيات',
+        'modelLabel' => 'جمعية',
+        'navigationLabel' => 'الجمعيات',
+        'name' => 'اسم الجمعية',
+        'name_arabic' => 'اسم الجمعية (بالعربية)',
+        'phone' => 'الهاتف',
+        'address' => 'العنوان',
+        'email' => 'البريد الإلكتروني',
+        'logo' => 'الشعار',
+        'status' => 'الحالة',
+        'is_active' => 'نشط',
+        'description' => 'الوصف',
+        'website' => 'الموقع الإلكتروني',
     ],
     'group' => [
         'label' => 'المجموعة',
