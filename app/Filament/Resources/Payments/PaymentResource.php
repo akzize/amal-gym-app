@@ -19,8 +19,8 @@ class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::CurrencyDollar;
+    protected static ?int $navigationSort = 8;
     protected static ?string $recordTitleAttribute = 'trainee.full_name';
     public static function getPluralModelLabel(): string
     {

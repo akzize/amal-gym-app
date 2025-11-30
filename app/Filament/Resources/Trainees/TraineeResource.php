@@ -19,7 +19,7 @@ class TraineeResource extends Resource
     protected static ?string $model = Trainee::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static ?int $navigationSort = 6;
     protected static ?string $recordTitleAttribute = 'full_arabic_name';
 
     public static function getPluralModelLabel(): string

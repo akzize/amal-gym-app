@@ -20,7 +20,7 @@ class GroupResource extends Resource
     protected static ?string $model = Group::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
-
+    protected static ?int $navigationSort = 4;
     public static function getPluralModelLabel(): string
     {
         return __('resources.group.pluralModelLabel');
