@@ -27,4 +27,9 @@ class Group extends Model
     {
         return $this->belongsToMany(Trainee::class, 'group_trainees')->withTimestamps()->withPivot('joined_at');
     }
+
+    public function association()
+    {
+        return $this->belongsTo(Association::class);
+    }
 }

@@ -14,55 +14,58 @@ class GroupForm
         return $schema
             ->components([
                 TextInput::make('name')
-                ->label(__('resources.group.name'))
+                    ->label(__('resources.group.name'))
                     ->required(),
                 Select::make('sport_id')
-                ->label(__('resources.sport.label'))
-                ->relationship('sport', 'name')
+                    ->label(__('resources.sport.label'))
+                    ->relationship('sport', 'name')
                     ->required()
                     ->createOptionForm([
                         TextInput::make('name')
-                ->label(__('resources.sport.name'))
+                            ->label(__('resources.sport.name'))
 
-                    ->required(),
+                            ->required(),
                         TextInput::make('name_ar')
-                ->label(__('resources.sport.name_arabic'))
+                            ->label(__('resources.sport.name_arabic'))
 
-                    ->required(),
+                            ->required(),
                     ]),
                 Select::make('trainer_id')
-                ->label(__('resources.trainer.label'))
+                    ->label(__('resources.trainer.label'))
 
-                ->relationship('trainer', 'name'),
+                    ->relationship('trainer', 'name'),
 
                 TextInput::make('monthly_fee')
-                ->label(__('resources.payment.monthly_fee'))
+                    ->label(__('resources.payment.monthly_fee'))
 
-                ->numeric()
+                    ->numeric()
                     ->default(0)
                     ->required(),
                 TextInput::make('insurance_fee')
-                ->label(__('resources.payment.insurance.all'))
+                    ->label(__('resources.payment.insurance.all'))
 
-                ->numeric()
+                    ->numeric()
                     ->default(0)
                     ->required(),
                 TextInput::make('insurance_profit')
-                ->label(__('resources.payment.insurance.net'))
+                    ->label(__('resources.payment.insurance.net'))
 
-                ->numeric()
+                    ->numeric()
                     ->default(0)
                     ->required(),
                 TextInput::make('registration_fee')
-                ->label(__('resources.payment.registratin'))
+                    ->label(__('resources.payment.registratin'))
 
-                ->numeric()
+                    ->numeric()
                     ->default(0)
                     ->required(),
                 TextInput::make('max_capacity')
                     ->numeric()
-                    ->default(20)   
+                    ->default(20)
                     ->required(),
+                Select::make('association_id')
+                ->label(__('resources.association.singule'))
+                    ->relationship('association', 'name'),
             ]);
     }
 }

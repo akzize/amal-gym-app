@@ -15,43 +15,37 @@ class PaymentTypeSeeder extends Seeder
     {
         $paymentTypes = [
             [
-                'name' => 'monthly',
+                'name' => 'Monthly',
                 'name_ar' => 'شهري',
                 'duration_months' => 1,
                 'description' => 'Access for one month',
             ],
             [
-                'name' => 'quarterly',
-                'name_ar' => 'ربع سنوي',
-                'duration_months' => 3,
-                'description' => 'Access for three months',
-            ],
-            [
-                'name' => 'yearly',
+                'name' => 'Yearly',
                 'name_ar' => 'سنوي',
                 'duration_months' => 12,
                 'description' => 'Access for one year',
             ],
 
             [
-                'name' => 'inscription',
+                'name' => 'Inscription',
                 'name_ar' => 'التسجيل',
                 'duration_months' => 12,
                 'description' => 'inscription fee',
             ],
             [
-                'name' => 'daily_session',
+                'name' => 'Daily Session',
                 'name_ar' => 'حصة يومية',
                 'description' => 'personal training session',
             ],
             [
-                'name' => 'insurance',
+                'name' => 'Insurance',
                 'name_ar' => 'التأمين',
                 'description' => 'personal training weekly session',
                 'duration_months' => 6,
             ],
             [
-                'name' => 'custom',
+                'name' => 'Custom',
                 'name_ar' => 'مخصص',
                 'description' => 'Custom payment type',
             ]

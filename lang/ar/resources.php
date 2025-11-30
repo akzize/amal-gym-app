@@ -1,6 +1,8 @@
 <?php
 return [
     'notes' => 'ملاحظات',
+    'created_at' => 'تاريخ الإنشاء',
+    'updated_at' => 'تاريخ التحديث',
     'navigationGroups' => [
         'management' => 'إدارة البيانات',
         'subscriptions' => 'إدارة الاشتراكات',
@@ -15,12 +17,30 @@ return [
         'sport_groupe' => 'إدارة المجموعات الرياضية',
         'salle_association' => 'إدارة الصالات والجمعيات',
     ],
+    'association' => [
+        'singule' => 'الجمعية',
+        'plural' => 'جمعيات',
+        'label' => 'جمعية',
+        'pluralModelLabel' => 'الجمعيات',
+        'modelLabel' => 'جمعية',
+        'navigationLabel' => 'الجمعيات',
+        'name' => 'اسم الجمعية',
+        'name_arabic' => 'اسم الجمعية (بالعربية)',
+        'phone' => 'الهاتف',
+        'address' => 'العنوان',
+        'email' => 'البريد الإلكتروني',
+        'logo' => 'الشعار',
+        'status' => 'الحالة',
+        'is_active' => 'نشط',
+        'description' => 'الوصف',
+        'website' => 'الموقع الإلكتروني',
+    ],
     'group' => [
         'label' => 'المجموعة',
         'modelLabel' => 'المجموعة',
         'navigationLabel' => 'المجموعات',
         'pluralModelLabel' => 'المجموعات',
-        'name' => 'الاسم الكامل',
+        'name' => 'اسم المجموعة',
         'email' => 'البريد الإلكتروني',
         'name_ar' => 'الاسم الكامل (بالعربية)',
         'phone' => 'الهاتف',
@@ -152,15 +172,47 @@ return [
         "password" => "كلمة المرور",
         "Payment info" => "معلومات الدفع",
         "fixed" => "ثابت",
+        "percentage" => "النسبة",
         "per_group" => "لكل مجموعة",
         "per_trainee" => "لكل متدرب",
         "none" => "لا يوجد",
         "active" => "نشط",
         "inactive" => "غير نشط",
         "groups" => "المجموعات",
-        "notes" => "ملاحظات"
+        "notes" => "ملاحظات",
 
+        // dashboard
+        'monthly_payments' => 'مدفوعات المدربين الشهرية',
+        'calculated_payout' => 'المبلغ المحسوب',
+        'trainees_count' => 'عدد الممارسين',
+        'groups_count' => 'عدد المجموعات',
 
+        'trainer_payment_processing' => 'معالجة مدفوعات المدرب',
+        'payment_details' => 'تفاصيل الدفع',
+        'current_balance_and_payment_entry' => 'الرصيد الحالي وإدخال الدفع',
+        'enter_full_or_partial_amount' => 'أدخل المبلغ بالكامل أو جزءًا منه',
+        'amount_to_pay_now' => 'المبلغ المستحق دفعه الآن',
+        'trainer_payment_processing' => 'معالجة مدفوعات المدرب',
 
     ],
+
+    'actions' => [
+        'pay_now' => 'ادفع الآن',
+        'cancel' => 'إلغاء',
+    ],
+
+    'messages' => [
+        'payment_recorded_successfully' => 'تم تسجيل الدفعة بنجاح',
+        'payment_recorded_body' => 'تم تسجيل دفعة بقيمة :amount_paid درهم مغربي للمدرب :trainer_name.',
+
+    ],
+
+    'dashboard' => [
+        'payments_statistics_title' => 'إحصائيات المدفوعات',
+        'financial_overview_description' => 'ملخص لأبرز الإحصائيات والوضع المالي الحالي للمدربين والمدفوعات.',
+        'widget_title_total_income' => 'إجمالي الدخل هذا الشهر',
+        'widget_title_unpaid_balance' => 'إجمالي الرصيد غير المدفوع',
+        'widget_description_income' => 'إجمالي المدفوعات التي تم جمعها في :month',
+
+    ]
 ];
