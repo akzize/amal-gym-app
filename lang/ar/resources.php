@@ -7,6 +7,7 @@ return [
         'management' => 'إدارة البيانات',
         'subscriptions' => 'إدارة الاشتراكات',
         'users' => 'إدارة المستخدمين',
+        'users_and_roles' => 'إدارة المستخدمين',
         'settings' => 'الإعدادات',
         'gyms' => 'إدارة الصالات الرياضية',
         'students' => 'إدارة الممارسين',
@@ -192,8 +193,26 @@ return [
         'current_balance_and_payment_entry' => 'الرصيد الحالي وإدخال الدفع',
         'enter_full_or_partial_amount' => 'أدخل المبلغ بالكامل أو جزءًا منه',
         'amount_to_pay_now' => 'المبلغ المستحق دفعه الآن',
-        'trainer_payment_processing' => 'معالجة مدفوعات المدرب',
 
+    ],
+
+    'user' => [
+        'singule' => 'مستخدم',
+        'plural' => 'مستخدمين',
+        'pluralModelLabel' => 'المستخدمين',
+        'modelLabel' => 'مستخدم',
+        'navigationLabel' => 'المستخدمين',
+        'name' => 'الاسم الكامل',
+        'email' => 'البريد الإلكتروني',
+        'name_ar' => 'الاسم الكامل (بالعربية)',
+        'phone' => 'الهاتف',
+        'whatsap_number' => 'رقم الواتساب',
+        'avatar' => 'الصورة الشخصية',
+        'address' => 'العنوان',
+        'dob' => 'تاريخ الميلاد',
+        'role' => 'الدور',
+        'is_active' => 'نشط',
+        'password' => 'كلمة المرور',
     ],
 
     'actions' => [
