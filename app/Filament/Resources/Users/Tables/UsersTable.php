@@ -18,16 +18,11 @@ class UsersTable
                     ->label(__('resources.user.name'))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label(__('resources.user.name'))
-                    ->label('Email address')
+                    ->label(__('resources.user.email'))
                     ->searchable(),
                 TextColumn::make('roles.name')
                     ->label(__('resources.user.role'))
-                    ->label('Email address')
                     ->searchable(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('resources.created_at'))
                     ->dateTime()
