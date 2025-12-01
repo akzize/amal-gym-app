@@ -15,33 +15,29 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
 
-    <body class="font-['Arial',sans-serif] min-h-screen" dir="rtl">
+    <body class="min-h-screen font-['Arial',sans-serif]" dir="rtl">
         <section x-data class="relative flex h-screen items-center justify-center overflow-hidden">
-            <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6 not-has-[nav]:hidden absolute top-0 left-0 right-0 z-20 px-4 py-6">
-                    <nav class="flex items-center justify-end gap-4">
-                        @auth
-                            <a
-                                href="{{ url('/admin/dashboard') }}"
-                                class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal"
-                            >
-                                {{ __('content.dashboard') }}
-                            </a>
-                        @else
-                            <a
-                                href="/admin/login"
-                                class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal"
-                            >
-                                {{ __('content.login') }}
-                            </a>
-    
-                            <a
-                                href="/admin/register"
-                                class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
-                                {{ __('content.register') }}
-                            </a>
-                        @endauth
-                    </nav>
-            </header> 
+            <header
+                class="not-has-[nav]:hidden absolute left-0 right-0 top-0 z-20 mb-6 w-full max-w-[335px] px-4 py-6 text-sm lg:max-w-4xl">
+                <nav class="flex items-center justify-end gap-4">
+                    @auth
+                        <a href="{{ url('/admin/dashboard') }}"
+                            class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
+                            {{ __('content.dashboard') }}
+                        </a>
+                    @else
+                        <a href="/admin/login"
+                            class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]">
+                            {{ __('content.login') }}
+                        </a>
+
+                        <a href="/admin/register"
+                            class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
+                            {{ __('content.register') }}
+                        </a>
+                    @endauth
+                </nav>
+            </header>
             {{-- Language Toggle Placeholder --}}
             <div class="absolute right-6 top-6 z-20 ltr:right-6 rtl:left-6">
                 {{-- Include your language toggle blade component here --}}
@@ -57,7 +53,7 @@
 
             {{-- Content --}}
             <div class="relative z-10 px-4 text-center">
-                <h1 class="mb-4 font-arabic text-5xl font-bold text-white md:text-7xl">
+                <h1 class="font-arabic mb-4 text-5xl font-bold text-white md:text-7xl">
                     {{ __('content.heroTitle') }}
                 </h1>
 
@@ -70,7 +66,7 @@
                 </p>
 
                 <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                    <button class="rounded-lg bg-primary px-8 py-3 text-lg text-white transition hover:bg-primary/90"
+                    <button class="bg-primary hover:bg-primary/90 rounded-lg px-8 py-3 text-lg text-white transition"
                         @click="document.getElementById('signup')?.scrollIntoView({ behavior: 'smooth' })">
                         {{ __('content.joinNow') }}
                     </button>
@@ -136,7 +132,7 @@
 
                             {{-- Content --}}
                             <div class="p-5">
-                                <h3 class="mb-2 text-2xl font-semibold text-primary">
+                                <h3 class="text-primary mb-2 text-2xl font-semibold">
                                     {{ __('content.' . $service['key']) }}
                                 </h3>
 
@@ -149,7 +145,7 @@
                                 </p>
 
                                 <button
-                                    class="w-full rounded-lg bg-primary py-2 text-white transition hover:bg-primary/90"
+                                    class="bg-primary hover:bg-primary/90 w-full rounded-lg py-2 text-white transition"
                                     @click="document.getElementById('signup')?.scrollIntoView({ behavior: 'smooth' })">
                                     {{ __('content.signupFor', ['service' => __('content.' . $service['key'])]) }}
                                 </button>
@@ -206,10 +202,10 @@
                         <div
                             class="rounded-lg border border-gray-200 bg-gray-50 p-5 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
                             <div
-                                class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                                class="bg-primary/10 mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full">
                                 {{-- @include('components.icons.' . $item['icon'], ['class' => 'w-7 h-7 text-primary']) --}}
                                 {{-- <{{ $item['icon'] }} class="w-7 h-7 text-primary" /> --}}
-                                <x-dynamic-component :component="$item['icon']" class="h-7 w-7 text-primary" />
+                                <x-dynamic-component :component="$item['icon']" class="text-primary h-7 w-7" />
                             </div>
 
                             <h3 class="mb-1 text-lg font-semibold">
@@ -225,7 +221,7 @@
 
                 {{-- Button --}}
                 <div class="text-center">
-                    <button class="rounded-lg bg-primary px-8 py-3 text-lg text-white transition hover:bg-primary/90">
+                    <button class="bg-primary hover:bg-primary/90 rounded-lg px-8 py-3 text-lg text-white transition">
                         {{ __('content.visitStore') }}
                     </button>
                 </div>
@@ -236,48 +232,48 @@
 
         <section id="signup" class="section-padding {{ $language === 'ar' ? 'font-arabic' : '' }} bg-background">
             <div class="container-custom">
-                <div class="mx-auto max-w-2xl animate-fade-in">
+                <div class="animate-fade-in mx-auto max-w-2xl">
                     {{-- Section Header --}}
                     <div class="mb-10 text-center">
-                        <h2 class="mb-3 text-3xl font-bold text-foreground md:text-5xl">
+                        <h2 class="text-foreground mb-3 text-3xl font-bold md:text-5xl">
                             {{ __('content.signupTitle') }}
                         </h2>
-                        <p class="text-lg text-muted-foreground">
+                        <p class="text-muted-foreground text-lg">
                             {{ __('content.signupSubtitle') }}
                         </p>
                     </div>
 
                     {{-- Form --}}
                     <form action="/register" method="POST"
-                        class="space-y-5 rounded-lg border border-border bg-card p-6">
+                        class="border-border bg-card space-y-5 rounded-lg border p-6">
                         @csrf
 
                         {{-- Full Name --}}
                         <div class="space-y-2">
                             <label for="fullName"
-                                class="block text-sm font-medium text-foreground">{{ __('content.fullName') }}</label>
+                                class="text-foreground block text-sm font-medium">{{ __('content.fullName') }}</label>
                             <input type="text" id="fullName" name="fullName"
                                 placeholder="{{ __('content.fullNamePlaceholder') }}" value="{{ old('fullName') }}"
-                                class="w-full rounded-md border border-border bg-background px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                class="border-border bg-background text-foreground focus:ring-primary w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2"
                                 required />
                         </div>
 
                         {{-- Phone --}}
                         <div class="space-y-2">
                             <label for="phone"
-                                class="block text-sm font-medium text-foreground">{{ __('content.phoneNumber') }}</label>
+                                class="text-foreground block text-sm font-medium">{{ __('content.phoneNumber') }}</label>
                             <input type="tel" id="phone" name="phone"
                                 placeholder="{{ __('content.phonePlaceholder') }}" value="{{ old('phone') }}"
-                                class="w-full rounded-md border border-border bg-background px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                class="border-border bg-background text-foreground focus:ring-primary w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2"
                                 required />
                         </div>
 
                         {{-- Sport Selection --}}
                         <div class="space-y-2">
                             <label for="sport"
-                                class="block text-sm font-medium text-foreground">{{ __('content.sportService') }}</label>
+                                class="text-foreground block text-sm font-medium">{{ __('content.sportService') }}</label>
                             <select id="sport" name="sport"
-                                class="w-full rounded-md border border-border bg-background px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                class="border-border bg-background text-foreground focus:ring-primary w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2"
                                 required>
                                 <option value="">{{ __('content.chooseSport') }}</option>
                                 <option value="karate">{{ __('content.karate') }}</option>
@@ -289,7 +285,7 @@
 
                         {{-- Submit Button --}}
                         <button type="submit"
-                            class="w-full rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors duration-200 hover:bg-primary/90">
+                            class="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg px-6 py-3 font-semibold transition-colors duration-200">
                             {{ __('content.submitRegistration') }}
                         </button>
 
@@ -303,10 +299,10 @@
         <section id="contact" class="section-padding {{ $language === 'ar' ? 'font-arabic' : '' }} bg-card">
             <div class="container-custom">
                 {{-- Section Header --}}
-                <div class="mb-12 animate-fade-in text-center">
-                    <h2 class="mb-3 text-3xl font-bold text-foreground md:text-5xl">{{ __('content.contactTitle') }}
+                <div class="animate-fade-in mb-12 text-center">
+                    <h2 class="text-foreground mb-3 text-3xl font-bold md:text-5xl">{{ __('content.contactTitle') }}
                     </h2>
-                    <p class="mx-auto max-w-3xl text-lg text-muted-foreground">{{ __('content.contactSubtitle') }}</p>
+                    <p class="text-muted-foreground mx-auto max-w-3xl text-lg">{{ __('content.contactSubtitle') }}</p>
                 </div>
 
                 <div class="grid gap-10 lg:grid-cols-2">
@@ -319,36 +315,36 @@
                             {{-- Name --}}
                             <div class="space-y-2">
                                 <label for="name"
-                                    class="block text-sm font-medium text-foreground">{{ __('content.name') }}</label>
+                                    class="text-foreground block text-sm font-medium">{{ __('content.name') }}</label>
                                 <input type="text" id="name" name="name"
                                     placeholder="{{ __('content.namePlaceholder') }}" value="{{ old('name') }}"
-                                    class="w-full rounded-md border border-border bg-background px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                    class="border-border bg-background text-foreground focus:ring-primary w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2"
                                     required />
                             </div>
 
                             {{-- Contact (Email/Phone) --}}
                             <div class="space-y-2">
                                 <label for="contact"
-                                    class="block text-sm font-medium text-foreground">{{ __('content.emailPhone') }}</label>
+                                    class="text-foreground block text-sm font-medium">{{ __('content.emailPhone') }}</label>
                                 <input type="text" id="contact" name="contact"
                                     placeholder="{{ __('content.emailPhonePlaceholder') }}"
                                     value="{{ old('contact') }}"
-                                    class="w-full rounded-md border border-border bg-background px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                    class="border-border bg-background text-foreground focus:ring-primary w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2"
                                     required />
                             </div>
 
                             {{-- Message --}}
                             <div class="space-y-2">
                                 <label for="message"
-                                    class="block text-sm font-medium text-foreground">{{ __('content.message') }}</label>
+                                    class="text-foreground block text-sm font-medium">{{ __('content.message') }}</label>
                                 <textarea id="message" name="message" rows="5" placeholder="{{ __('content.messagePlaceholder') }}"
-                                    class="w-full rounded-md border border-border bg-background px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                    class="border-border bg-background text-foreground focus:ring-primary w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2"
                                     required>{{ old('message') }}</textarea>
                             </div>
 
                             {{-- Submit --}}
                             <button type="submit"
-                                class="w-full rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors duration-200 hover:bg-primary/90">
+                                class="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg px-6 py-3 font-semibold transition-colors duration-200">
                                 {{ __('content.sendMessage') }}
                             </button>
                         </form>
@@ -357,7 +353,7 @@
                     {{-- Contact Info & Quick Links --}}
                     <div class="animate-fade-in space-y-6">
                         <div>
-                            <h3 class="mb-5 text-2xl font-semibold text-primary">
+                            <h3 class="text-primary mb-5 text-2xl font-semibold">
                                 {{ __('content.contactInformation') }}</h3>
 
                             <div class="space-y-5">
@@ -365,17 +361,17 @@
                                 {{-- Phone --}}
                                 <div class="flex gap-3">
                                     <div
-                                        class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                                        <svg class="h-5 w-5 text-primary">
-                                            <x-lucide-phone class="h-5 w-5 text-primary" />
+                                        class="bg-primary/10 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full">
+                                        <svg class="text-primary h-5 w-5">
+                                            <x-lucide-phone class="text-primary h-5 w-5" />
                                         </svg>
                                     </div>
                                     <div>
                                         <h4 class="mb-1 text-base font-semibold">{{ __('content.phoneWhatsApp') }}
                                         </h4>
-                                        <a href="tel:+212600000000"
-                                            class="text-sm text-muted-foreground transition-colors hover:text-primary">
-                                            +212 6XX XXX XXX
+                                        <a href="tel:+212600000000" dir="ltr"
+                                            class="text-muted-foreground hover:text-primary text-sm transition-colors">
+                                            +212 624836434
                                         </a>
                                     </div>
                                 </div>
@@ -383,16 +379,16 @@
                                 {{-- Email --}}
                                 <div class="flex gap-3">
                                     <div
-                                        class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                                        <svg class="h-5 w-5 text-primary">
-                                            <x-lucide-mail class="h-5 w-5 text-primary" />
+                                        class="bg-primary/10 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full">
+                                        <svg class="text-primary h-5 w-5">
+                                            <x-lucide-mail class="text-primary h-5 w-5" />
                                         </svg>
                                     </div>
                                     <div>
                                         <h4 class="mb-1 text-base font-semibold">{{ __('content.email') }}</h4>
-                                        <a href="mailto:contact@amalgym.ma"
-                                            class="text-sm text-muted-foreground transition-colors hover:text-primary">
-                                            contact@amalgym.ma
+                                        <a href="mailto:amal.gym.ouarzazate@gmail.com"
+                                            class="text-muted-foreground hover:text-primary text-sm transition-colors">
+                                            amal.gym.ouarzazate@gmail.com
                                         </a>
                                     </div>
                                 </div>
@@ -400,14 +396,14 @@
                                 {{-- Address --}}
                                 <div class="flex gap-3">
                                     <div
-                                        class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                                        <svg class="h-5 w-5 text-primary">
-                                            <x-lucide-map-pin class="h-5 w-5 text-primary" />
+                                        class="bg-primary/10 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full">
+                                        <svg class="text-primary h-5 w-5">
+                                            <x-lucide-map-pin class="text-primary h-5 w-5" />
                                         </svg>
                                     </div>
                                     <div>
                                         <h4 class="mb-1 text-base font-semibold">{{ __('content.address') }}</h4>
-                                        <p class="text-sm text-muted-foreground">
+                                        <p class="text-muted-foreground text-sm">
                                             Centre Ville<br />
                                             Ouarzazate, Morocco
                                         </p>
@@ -417,13 +413,21 @@
                         </div>
 
                         {{-- Quick Contact --}}
-                        <div class="rounded-lg border border-border bg-background p-5">
+                        {{-- <div class="border-border bg-background rounded-lg border p-5">
                             <h4 class="mb-3 text-lg font-semibold">{{ __('content.quickContact') }}</h4>
-                            <p class="mb-4 text-sm text-muted-foreground">{{ __('content.quickContactText') }}</p>
+                            <p class="text-muted-foreground mb-4 text-sm">{{ __('content.quickContactText') }}</p>
                             <a href="https://wa.me/212600000000" target="_blank"
-                                class="inline-block w-full rounded-lg border border-primary px-6 py-3 text-center text-primary transition-colors duration-200 hover:bg-primary/10">
+                                class="border-primary text-primary hover:bg-primary/10 inline-block w-full rounded-lg border px-6 py-3 text-center transition-colors duration-200">
                                 {{ __('content.messageWhatsApp') }}
                             </a>
+                        </div> --}}
+                        <div class="border-border bg-background rounded-lg border">
+                            <div className="aspect-video bg-muted">
+                                <iframe
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d106438.81099158225!2d-6.5!3d32.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDAwJzAwLjAiTiA2wrAzMCcwMC4wIlc!5e0!3m2!1sen!2sma!4v1234567890"
+                                    width="100%" height="100%" style="border: 0;" allowFullScreen
+                                    loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -431,7 +435,7 @@
         </section>
         @props(['language' => app()->getLocale()])
 
-        <footer class="{{ $language === 'ar' ? 'font-arabic' : '' }} border-t border-border bg-background">
+        <footer class="{{ $language === 'ar' ? 'font-arabic' : '' }} border-border bg-background border-t">
             <div class="container-custom py-10">
 
                 {{-- Top Grid --}}
@@ -440,13 +444,13 @@
                     {{-- About / Hero --}}
                     <div>
                         <h3 class="mb-3 text-2xl font-bold">{{ __('content.heroTitle') }}</h3>
-                        <p class="text-sm text-muted-foreground">{{ __('content.footerTagline') }}</p>
+                        <p class="text-muted-foreground text-sm">{{ __('content.footerTagline') }}</p>
                     </div>
 
                     {{-- Opening Hours --}}
                     <div>
                         <h4 class="mb-3 text-lg font-semibold">{{ __('content.openingHours') }}</h4>
-                        <div class="space-y-1 text-sm text-muted-foreground">
+                        <div class="text-muted-foreground space-y-1 text-sm">
                             <p>{{ __('content.mondayFriday') }} 6:00 - 22:00</p>
                             <p>{{ __('content.saturday') }} 8:00 - 20:00</p>
                             <p>{{ __('content.sunday') }} 9:00 - 18:00</p>
@@ -456,38 +460,42 @@
                     {{-- Contact --}}
                     <div>
                         <h4 class="mb-3 text-lg font-semibold">{{ __('content.contact') }}</h4>
-                        <div class="space-y-1 text-sm text-muted-foreground">
-                            <p>+212 6XX XXX XXX</p>
-                            <p>contact@amalgym.ma</p>
+                        <div class="text-muted-foreground space-y-1 text-sm">
+                            <p>
+                                <a href="tel:+212624836434" dir="ltr">+212 624836434</a>
+                            </p>
+                            <p>
+                                <a href="mailto:amal.gym.ouarzazate@gmail.com">amal.gym.ouarzazate@gmail.com</a>
+                            </p>
                             <p>{{ __('content.heroLocation') }}</p>
                         </div>
                     </div>
                 </div>
 
                 {{-- Bottom Section --}}
-                <div class="flex flex-col items-center justify-between gap-4 border-t border-border pt-6 md:flex-row">
+                <div class="border-border flex flex-col items-center justify-between gap-4 border-t pt-6 md:flex-row">
 
                     {{-- Copyright --}}
-                    <p class="text-xs text-muted-foreground">
+                    <p class="text-muted-foreground text-xs">
                         {{ __('content.copyright', ['year' => now()->year]) }}
                     </p>
 
                     {{-- Social Icons --}}
                     <div class="flex gap-3">
                         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
-                            class="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                            class="border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
                             aria-label="Facebook">
                             <x-lucide-facebook class="h-4 w-4" />
                         </a>
 
                         <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
-                            class="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                            class="border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
                             aria-label="Instagram">
                             <x-lucide-instagram class="h-4 w-4" />
                         </a>
 
                         <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer"
-                            class="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                            class="border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
                             aria-label="TikTok">
                             <x-lucide-music class="h-4 w-4" />
                         </a>
