@@ -2,10 +2,49 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
     <head>
+
+        <title>Amal Gym Ouarzazate | نادي أمل للرياضة – أفضل نادي رياضي في ورزازات</title>
+        <meta name="description"
+            content="Amal Gym Ouarzazate - نادي أمل للرياضة في حي فضراكوم ورزازات. تدريب شخصي، كمال الأجسام، لياقة بدنية، خسارة الوزن، وبرامج تدريب احترافية لجميع المستويات.">
+        <meta name="keywords"
+            content="Amal Gym Ouarzazate, نادي امل للرياضة, Amal Gym, gym Ouarzazate, gym ouarzazate hay fedragoum, نادي رياضي ورزازات, صالة رياضية ورزازات, كمال الاجسام ورزازات, جيم ورزازات, تدريب شخصي ورزازات, لياقة بدنية ورزازات">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="author" content="Amal Gym Ouarzazate">
+        <meta name="robots" content="index, follow">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <!-- Local Business GEO Tags -->
+        <meta name="geo.region" content="MA-OUA">
+        <meta name="geo.placename" content="Ouarzazate, Hay Fedragoum">
+        <meta name="geo.position" content="30.9361605;-6.9499093">
+        <meta name="ICBM" content="30.9361605, -6.9499093">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:title" content="Amal Gym Ouarzazate | نادي أمل للرياضة – أفضل نادي رياضي في ورزازات">
+        <meta property="og:description"
+            content="أفضل نادي رياضي في حي فضراكوم ورزازات. برامج تدريب، لياقة بدنية، كمال الأجسام، وتدريب شخصي.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://amalgymouarzazate.com/">
+        <meta property="og:image" content="https://amalgymouarzazate.com/images/amal-gym-cover.png">
+        <!-- Replace image -->
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Amal Gym Ouarzazate | نادي أمل للرياضة">
+        <meta name="twitter:description"
+            content="أفضل نادي رياضي في ورزازات – تدريب شخصي، كمال الأجسام، وبرامج لياقة لجميع المستويات.">
+        <meta name="twitter:image" content="https://amalgymouarzazate.com/images/amal-gym-cover.png">
+
+        <!-- Language + Charset -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- App Identity -->
+        <meta name="application-name" content="Amal Gym Ouarzazate">
+        <meta name="theme-color" content="#cb6342">
+
+        <!-- Canonical -->
+        <link rel="canonical" href="https://amalgymouarzazate.com/">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -425,8 +464,8 @@
                             <div className="aspect-video bg-muted">
                                 <iframe
                                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d106438.81099158225!2d-6.5!3d32.0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDAwJzAwLjAiTiA2wrAzMCcwMC4wIlc!5e0!3m2!1sen!2sma!4v1234567890"
-                                    width="100%" height="100%" style="border: 0;" allowFullScreen
-                                    loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+                                    width="100%" height="100%" style="border: 0;" allowFullScreen loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"></iframe>
                             </div>
                         </div>
                     </div>
