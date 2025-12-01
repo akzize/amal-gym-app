@@ -50,6 +50,73 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
+        <script type="application/ld+json">
+            {
+            "@context": "https://schema.org",
+            "@type": "HealthClub",
+            "name": "Amal Gym Ouarzazate",
+            "alternateName": "نادي أمل للرياضة",
+            "image": "https://amalgymouarzazate.com/images/amal-gym-cover.png",
+            "logo": "https://amalgymouarzazate.com/images/logo.png",
+            "url": "https://amalgymouarzazate.com",
+            "telephone": "+212624836434",
+            "priceRange": "$$",
+            
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Ouarzazate",
+                "addressRegion": "Daraa-Tafilalet",
+                "streetAddress": "Hay Fedragoum",
+                "addressCountry": "MA"
+            },
+
+            "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 30.9361605,
+                "longitude": -6.9499093
+            },
+
+            "openingHoursSpecification": [
+                {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday"
+                ],
+                "opens": "08:00",
+                "closes": "22:00"
+                },
+                {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": "Sunday",
+                "opens": "10:00",
+                "closes": "18:00"
+                }
+            ],
+
+            "sameAs": [
+                "https://www.google.com/maps/place/Amal+Gym",
+                "https://facebook.com/",
+                "https://instagram.com/"
+            ],
+
+            "description": "Amal Gym Ouarzazate - نادي أمل للرياضة في حي فدراكوم ورزازات. نقدم تدريب شخصي، تمارين لياقة بدنية، كمال الأجسام، وبرامج مناسبة لجميع المستويات.",
+            "keywords": [
+                "Amal Gym Ouarzazate",
+                "نادي امل للرياضة",
+                "Gym Ouarzazate",
+                "Gym Hay Fedragoum",
+                "نادي رياضي ورزازات",
+                "كمال الأجسام ورزازات",
+                "لياقة بدنية ورزازات"
+            ]
+            }
+        </script>
+
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
