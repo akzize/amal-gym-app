@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -30,8 +29,9 @@ class MonthlyTrainerPayments extends TableWidget
     {
         return $table
             ->query(fn(): Builder => Trainer::query())
-            // ->header(__('resources.trainer.monthly_payments'))
             ->heading(__('resources.trainer.monthly_payments'))
+            ->modelLabel(__('resources.trainer.modelLabel'))
+            ->pluralModelLabel(__('resources.trainer.pluralModelLabel'))
             ->columns([
                 TextColumn::make('name')
                     ->label(__('resources.trainer.name'))
