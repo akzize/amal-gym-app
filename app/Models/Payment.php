@@ -16,12 +16,12 @@ class Payment extends Model
 
     // payment types
     const TYPE_MONTHLY = 1; #'monthly';
-    const TYPE_YEARLY = 3; #'yearly';
-    const TYPE_INSURANCE = 6; #'insurance';
-    const TYPE_ONE_SESSION = 5; #'one-session';
+    const TYPE_YEARLY = 2; #'yearly';
+    const TYPE_INSURANCE = 3; #'insurance';
+    const TYPE_ONE_SESSION = 4; #'one-session';
     const TYPE_SPORT_PASSPORT = 'sport-passport';
-    const TYPE_INSCRIPTION = 4; #'inscription';
-    const TYPE_CUSTOM = 7; #'inscription';
+    const TYPE_INSCRIPTION = 5; #'inscription';
+    const TYPE_CUSTOM = 6; #'inscription';
 
     protected static function booted() {
         static::created(function($payment) {
