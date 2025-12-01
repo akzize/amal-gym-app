@@ -59,8 +59,8 @@
 
         <script type="application/ld+json">
             {
-            "@context": "https://schema.org",
-            "@type": "HealthClub",
+            "@@context": "https://schema.org",
+            "@@type": "HealthClub",
             "name": "Amal Gym Ouarzazate",
             "alternateName": "نادي أمل للرياضة",
             "image": "https://amalgymouarzazate.com/images/amal-gym-cover.png",
@@ -70,7 +70,7 @@
             "priceRange": "$$",
             
             "address": {
-                "@type": "PostalAddress",
+                "@@type": "PostalAddress",
                 "addressLocality": "Ouarzazate",
                 "addressRegion": "Daraa-Tafilalet",
                 "streetAddress": "Hay Fedragoum",
@@ -78,14 +78,14 @@
             },
 
             "geo": {
-                "@type": "GeoCoordinates",
+                "@@type": "GeoCoordinates",
                 "latitude": 30.9361605,
                 "longitude": -6.9499093
             },
 
             "openingHoursSpecification": [
                 {
-                "@type": "OpeningHoursSpecification",
+                "@@type": "OpeningHoursSpecification",
                 "dayOfWeek": [
                     "Monday",
                     "Tuesday",
@@ -98,7 +98,7 @@
                 "closes": "22:00"
                 },
                 {
-                "@type": "OpeningHoursSpecification",
+                "@@type": "OpeningHoursSpecification",
                 "dayOfWeek": "Sunday",
                 "opens": "10:00",
                 "closes": "18:00"
