@@ -19,6 +19,16 @@ class SportSeeder extends Seeder
                 "arabic" => "كاراتيه",
                 "price" => 50
             ],
+            // كمال الاجسام
+            "Body Building"=> [
+                "arabic" => "كمال الاجسام",
+                "price" => 50
+            ],
+            // الايروبيك
+            "Aerobic"=> [
+                "arabic" => "ايروبيك",
+                "price" => 50
+            ],
             "Taekwondo" => [
                 "arabic" => "تايكوندو",
                 "price" => 50
