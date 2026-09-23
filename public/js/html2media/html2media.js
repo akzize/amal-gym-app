@@ -361,5 +361,3 @@
     global.html2media = html2mediaFactory;
 
 }(window));
-//fuck js
-console.log('fuck js')
