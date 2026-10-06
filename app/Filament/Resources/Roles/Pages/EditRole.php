@@ -3,17 +3,19 @@
 namespace App\Filament\Resources\Roles\Pages;
 
 use App\Filament\Resources\Roles\RoleResource;
-use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use BezhanSalleh\FilamentShield\Resources\Roles\Pages\EditRole as ShieldEditRole;
 
-class EditRole extends EditRecord
+class EditRole extends ShieldEditRole
 {
     protected static string $resource = RoleResource::class;
 
-    protected function getHeaderActions(): array
+    protected function mutateFormDataBeforeSave(array $data): array
     {
-        return [
-            DeleteAction::make(),
-        ];
+        // Shield treats every key except name/guard_name as a permission (and keeps only those two),
+        // so take name_ar out before it runs and put it back afterwards.
+        $nameAr = $data['name_ar'] ?? null;
+        unset($data['name_ar']);
+
+        return [...parent::mutateFormDataBeforeSave($data), 'name_ar' => $nameAr];
     }
 }

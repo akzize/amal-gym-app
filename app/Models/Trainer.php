@@ -16,7 +16,8 @@ class Trainer extends Model
 
     public function user()
     {
-        return $this->belongsTo(related: User::class);
+        // withTrashed: a trainer keeps their (deactivated) login account after it is deleted
+        return $this->belongsTo(related: User::class)->withTrashed();
     }
 
     public function groups()
@@ -40,6 +41,14 @@ class Trainer extends Model
     public function payouts()
     {
         return $this->hasMany(TrainerPayout::class);
+    }
+
+    /**
+     * The most recent installment paid to this trainer, across all months.
+     */
+    public function latestPayoutInstallment()
+    {
+        return $this->hasOneThrough(TrainerPayoutInstallment::class, TrainerPayout::class)->latestOfMany();
     }
 
     /**

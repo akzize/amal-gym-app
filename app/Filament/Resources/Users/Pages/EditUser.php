@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditUser extends EditRecord
@@ -13,7 +14,9 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            // Soft delete (hidden on your own account by the policy); restore once deleted
             DeleteAction::make(),
+            RestoreAction::make(),
         ];
     }
 }

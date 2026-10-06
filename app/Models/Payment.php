@@ -33,14 +33,15 @@ class Payment extends Model
         });
 
         static::created(function($payment) {
-            // create payment installment logic here if amount paid is less than amount due
-            if ($payment->amount_paid < $payment->amount_due) {
+            // Installments are the cash ledger (what was received, and when): record the
+            // amount paid at creation, whether it covers the full amount due or only part of it.
+            if ($payment->amount_paid > 0) {
                 PaymentInstallment::create([
                     'payment_id' => $payment->id,
                     'amount_paid' => $payment->amount_paid,
-                    'paid_at' => now(),
+                    'paid_at' => $payment->payment_date ?? now(),
                 ]);
-            }   
+            }
         });
     }
     public function subscription()

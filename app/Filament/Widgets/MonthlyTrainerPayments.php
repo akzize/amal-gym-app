@@ -22,15 +22,25 @@ use Illuminate\Database\Eloquent\Builder;
 
 class MonthlyTrainerPayments extends TableWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 5;
 
     protected int | string | array $columnSpan = 'full';
 
+    protected function getHeading(): ?string
+    {
+        return __('resources.dashboard.trainer_monthly_payouts');
+    }
+
+    protected function getDescription(): ?string
+    {
+        return __('resources.dashboard.trainer_monthly_payouts');
+    }
     public function table(Table $table): Table
     {
         return $table
             ->query(fn(): Builder => Trainer::query()->with([
                 'groups.trainees',
+                'latestPayoutInstallment',
                 // Only the current month's payout, with its installments already summed
                 'payouts' => fn($query) => $query
                     ->whereDate('month_key', now()->startOfMonth())
@@ -94,6 +104,7 @@ class MonthlyTrainerPayments extends TableWidget
             ])
             ->recordActions([
                 $this->makeTrainerPaymentAction(),
+                $this->makePrintLatestReceiptAction(),
                 $this->makeReceiptsAction(),
             ])
             ->toolbarActions([
@@ -227,7 +238,25 @@ class MonthlyTrainerPayments extends TableWidget
     }
 
     /**
-     * Lists the trainer's paid installments so any receipt can be (re)printed.
+     * Opens the trainer's latest receipt straight in the print view (new tab).
+     */
+    public static function makePrintLatestReceiptAction(): Action
+    {
+        return Action::make('printLatestReceipt')
+            ->label('')
+            ->tooltip(__('resources.trainer.print_receipt'))
+            ->color('gray')
+            ->icon('heroicon-o-printer')
+            ->iconSize(IconSize::Large)
+            ->url(fn(Trainer $record): ?string => $record->latestPayoutInstallment
+                ? route('filament.admin.trainer-payouts.receipt', $record->latestPayoutInstallment)
+                : null, shouldOpenInNewTab: true)
+            // Nothing to print before the first payment
+            ->visible(fn(Trainer $record): bool => $record->latestPayoutInstallment !== null);
+    }
+
+    /**
+     * Lists the trainer's paid installments so older receipts can be reprinted.
      */
     public static function makeReceiptsAction(): Action
     {
@@ -235,7 +264,7 @@ class MonthlyTrainerPayments extends TableWidget
             ->label('')
             ->tooltip(__('resources.trainer.payout_receipts'))
             ->color('gray')
-            ->icon('heroicon-o-printer')
+            ->icon('heroicon-o-clock')
             ->iconSize(IconSize::Large)
             ->modalHeading(fn(Trainer $record): string => __('resources.trainer.payout_receipts') . ' - ' . $record->display_name)
             ->modalWidth('lg')

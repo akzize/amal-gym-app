@@ -6,6 +6,8 @@ use App\Filament\Resources\Payments\PaymentResource;
 use App\Models\Payment;
 use App\Models\PaymentInstallment;
 use App\Models\Subscription;
+use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
@@ -30,6 +32,53 @@ class CreatePayment extends CreateRecord
                 ->modalHeading('Conflict Detected')
                 ->modalSubmitActionLabel('OK'),
         ];
+    }
+
+    /**
+     * A trainee pays one monthly fee per group per month. When that month is already recorded,
+     * show the existing payment instead of creating a second one.
+     */
+    protected function beforeCreate(): void
+    {
+        $existing = $this->findExistingMonthlyPayment($this->data);
+
+        if ($existing) {
+            $this->mountAction('monthlyPaymentExists', ['payment' => $existing->id]);
+            $this->halt();
+        }
+    }
+
+    public function monthlyPaymentExistsAction(): Action
+    {
+        return Action::make('monthlyPaymentExists')
+            ->modalHeading(__('resources.payment.duplicate_monthly_title'))
+            ->modalIcon('heroicon-o-exclamation-triangle')
+            ->modalIconColor('warning')
+            ->modalWidth('md')
+            ->modalContent(fn(array $arguments) => view('filament.payments.duplicate-monthly-payment', [
+                'payment' => Payment::with(['trainee', 'group'])->find($arguments['payment'] ?? null),
+            ]))
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel(__('resources.actions.cancel'));
+    }
+
+    private function findExistingMonthlyPayment(array $data): ?Payment
+    {
+        if (($data['payment_type_id'] ?? null) != Payment::TYPE_MONTHLY || blank($data['applies_to_date'] ?? null) || blank($data['trainee_id'] ?? null)) {
+            return null;
+        }
+
+        return Payment::query()
+            ->where('payment_type_id', Payment::TYPE_MONTHLY)
+            ->where('trainee_id', $data['trainee_id'])
+            // A null group_id never collides in the unique index, so match it explicitly
+            ->when(
+                filled($data['group_id'] ?? null),
+                fn($query) => $query->where('group_id', $data['group_id']),
+                fn($query) => $query->whereNull('group_id'),
+            )
+            ->whereDate('month_key', Carbon::parse($data['applies_to_date'])->startOfMonth())
+            ->first();
     }
 
     protected function handleRecordCreation(array $data): Model
@@ -91,8 +140,10 @@ class CreatePayment extends CreateRecord
                 try {
                     $payment = static::getModel()::create($data);
                 } catch (UniqueConstraintViolationException) {
+                    // Fallback when two payments are saved at the same moment (beforeCreate checks first).
+                    // Form errors live under "data.", without it the message was silently dropped.
                     throw ValidationException::withMessages([
-                        'applies_to_date' => 'A monthly payment already exists for this trainee and group in the selected month.',
+                        'data.applies_to_date' => __('resources.payment.duplicate_monthly_error'),
                     ]);
                 }
                 return $payment;

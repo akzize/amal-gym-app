@@ -11,7 +11,9 @@ use Filament\Actions\EditAction;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -55,7 +57,10 @@ class TraineesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Same rule as the dashboard's "unpaid this month" card, which links here
+                Filter::make('unpaid_this_month')
+                    ->label(__('resources.dashboard.unpaid_this_month'))
+                    ->query(fn(Builder $query): Builder => $query->unpaidForMonth(now())),
             ])
             ->recordActions([
                 EditAction::make()

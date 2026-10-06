@@ -14,11 +14,14 @@ class TrainersTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                // Arabic name, latin (French) name as fallback
+                TextColumn::make('display_name')
                     ->label(__('resources.trainer.name'))
-                    ->searchable(),
+                    ->searchable(['name', 'name_ar'])
+                    ->sortable(['name_ar', 'name']),
                 TextColumn::make('salary_type')
                     ->label(__('resources.trainer.salary_type'))
+                    ->formatStateUsing(fn(string $state): string => __("resources.trainer.{$state}"))
                     ->badge(),
                 TextColumn::make('salary_amount')
                     ->label(__('resources.trainer.salary_amount'))

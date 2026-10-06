@@ -25,7 +25,8 @@ class TrainerPayoutInstallment extends Model
 
     public function recorder()
     {
-        return $this->belongsTo(User::class, 'recorded_by');
+        // withTrashed: old receipts keep the cashier's name after their account is deleted
+        return $this->belongsTo(User::class, 'recorded_by')->withTrashed();
     }
 
     public function payout()

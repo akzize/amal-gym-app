@@ -10,6 +10,7 @@ use App\Models\Trainer;
 use App\Models\TrainerPayout;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -168,6 +169,22 @@ class TrainerPayoutTest extends TestCase
         $this->get($url)->assertSee('Club Amal');
     }
 
+    public function test_print_button_opens_the_latest_receipt_directly(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $trainer = $this->makeTrainer();
+        $unpaid = Trainer::create(['name' => 'New', 'user_id' => User::factory()->create()->id, 'salary_type' => 'fixed', 'salary_amount' => 100]);
+
+        $trainer->recordPayoutInstallment('2026-10-01', 1000);
+        // Most recently recorded wins, even when it is for an earlier month
+        $latest = $trainer->recordPayoutInstallment('2026-09-01', 500);
+
+        Livewire::test(MonthlyTrainerPayments::class)
+            ->assertActionHasUrl(TestAction::make('printLatestReceipt')->table($trainer), route('filament.admin.trainer-payouts.receipt', $latest))
+            ->assertActionShouldOpenUrlInNewTab(TestAction::make('printLatestReceipt')->table($trainer))
+            ->assertActionHidden(TestAction::make('printLatestReceipt')->table($unpaid));
+    }
+
     public function test_receipts_modal_lists_installments_with_print_links(): void
     {
         $this->actingAs(User::factory()->create());
@@ -179,6 +196,24 @@ class TrainerPayoutTest extends TestCase
 
         $this->assertStringContainsString(route('filament.admin.trainer-payouts.receipt', $installment), $html);
         $this->assertStringContainsString('1,000.00 MAD', $html);
+    }
+
+    public function test_trainers_list_shows_arabic_name_with_french_fallback(): void
+    {
+        config(['app.env' => 'local']);
+        app()->setLocale('ar');
+        Gate::before(fn() => true);
+        $this->actingAs(User::factory()->create());
+
+        $this->makeTrainer()->update(['name' => 'Karim', 'name_ar' => 'كريم']);
+        Trainer::create(['name' => 'Youssef', 'user_id' => User::factory()->create()->id, 'salary_type' => 'percentage', 'salary_amount' => 10]);
+
+        $this->get('/admin/trainers')
+            ->assertOk()
+            ->assertSee('كريم')
+            ->assertDontSee('Karim')
+            ->assertSee('Youssef')
+            ->assertSee(['ثابت', 'النسبة']);
     }
 
     public function test_deleting_an_installment_recomputes_status(): void

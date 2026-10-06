@@ -72,6 +72,11 @@ return [
         'payment_date' => 'تاريخ الدفع',
         'amount_due' => 'المبلغ الواجب دفعه',
         'remaining_amount' => 'المبلغ المتبقي',
+        'duplicate_monthly_title' => 'الدفعة الشهرية مسجلة مسبقًا',
+        'duplicate_monthly_body' => 'لدى :trainee دفعة شهرية مسجلة لشهر :month، لذلك لم تتم إضافة دفعة جديدة.',
+        'duplicate_monthly_hint' => 'لإضافة ما تبقى، افتح الدفعة وأضف دفعة جزئية.',
+        'duplicate_monthly_error' => 'توجد دفعة شهرية مسجلة لهذا الممارس في هذه المجموعة لنفس الشهر.',
+        'view_existing' => 'عرض الدفعة',
         'insurance' => [
             'for_association' => 'مبلغ التأمين للجمعية',
             'net' => 'صافي مبلغ التأمين',
@@ -221,6 +226,17 @@ return [
         'role' => 'الدور',
         'is_active' => 'نشط',
         'password' => 'كلمة المرور',
+        'account_info' => 'معلومات الحساب',
+        'new_password' => 'كلمة المرور الجديدة',
+        'password_confirmation' => 'تأكيد كلمة المرور',
+        'keep_password_hint' => 'اتركه فارغًا للإبقاء على كلمة المرور الحالية.',
+        'own_role_hint' => 'لا يمكنك تغيير دورك الخاص.',
+        'deleted_at' => 'تاريخ الحذف',
+    ],
+
+    // Role names live in the roles table (name_ar), editable on the roles page
+    'role' => [
+        'name_ar' => 'الاسم (بالعربية)',
     ],
 
     'actions' => [
@@ -240,6 +256,36 @@ return [
         'widget_title_total_income' => 'إجمالي الدخل هذا الشهر',
         'widget_title_unpaid_balance' => 'إجمالي الرصيد غير المدفوع',
         'widget_description_income' => 'إجمالي المدفوعات التي تم جمعها في :month',
+        'trainer_monthly_payouts' => 'مدفوعات المدرب الشهرية',
 
+        // filter
+        'filter_from' => 'من تاريخ',
+        'filter_to' => 'إلى تاريخ',
+        'period' => 'الفترة: من :from إلى :to',
+
+        // KPI cards
+        'collected' => 'المبالغ المحصلة',
+        'vs_previous' => ':change مقارنة بالفترة السابقة',
+        'vs_previous_none' => 'لا توجد مداخيل في الفترة السابقة',
+        'outstanding' => 'المبالغ المتبقية',
+        'outstanding_description' => 'ما تبقى من دفعات هذه الفترة',
+        'collection_rate' => 'نسبة التحصيل',
+        'collection_rate_description' => 'من الرسوم الشهرية المستحقة في الفترة',
+        'net' => 'الصافي',
+        'net_description' => 'بعد أجور المدربين المدفوعة (:payouts)',
+        'active_trainees' => 'الممارسون النشطون',
+        'new_trainees' => ':count ممارس جديد في الفترة',
+        'unpaid_this_month' => 'لم يدفعوا رسوم هذا الشهر',
+        'unpaid_this_month_description' => 'اضغط لعرض القائمة',
+        'expiring_subscriptions' => 'اشتراكات تنتهي قريبًا',
+        'expiring_subscriptions_description' => 'خلال 30 يومًا القادمة',
+
+        // charts & table
+        'chart_collected_vs_outstanding' => 'المحصل والمتبقي حسب الشهر',
+        'chart_collected_vs_outstanding_description' => 'المحصل حسب تاريخ الدفع، والمتبقي حسب شهر الدفعة',
+        'chart_payments_by_type' => 'المحصل حسب نوع الدفعة',
+        'chart_payments_by_type_description' => 'حسب تاريخ الدفع',
+        'collected_payments' => 'الدفعات المحصلة في الفترة',
+        'total' => 'المجموع',
     ]
 ];
