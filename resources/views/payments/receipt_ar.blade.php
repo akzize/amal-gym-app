@@ -6,15 +6,16 @@
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>إيصال {{ $receiptNumber ?? '' }}</title>
 
-        <!-- Print rules: paper width comes from $printerWidth (config receipt.paper_width).
-             The @page size (width x receipt height) is set by the script at the bottom. -->
+        <!-- Print rules: no fixed @page size, so the receipt follows the paper picked in the
+             print dialog (e.g. POS-80C). $printerWidth (config receipt.paper_width) only sets
+             the on-screen preview width. -->
         <style>
             :root {
                 --printer-width: {{ $printerWidth ?? '80mm' }};
             }
 
             @page {
-                margin: 4mm;
+                margin: 2mm;
             }
 
             @media print {
@@ -26,16 +27,22 @@
                     padding: 0 !important;
                     -webkit-print-color-adjust: exact;
                 }
+
+                /* fill the full printable width of the selected paper */
+                .receipt {
+                    width: 100% !important;
+                    padding: 0 !important;
+                }
             }
 
             /* make the receipt compact and monospaced for thermal printers */
             .receipt {
-                width: calc(var(--printer-width) - 8mm);
+                width: calc(var(--printer-width) - 4mm);
                 max-width: 100%;
                 font-family: Arial, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif, Helvetica, "Courier New", monospace;
-                font-size: 10px;
+                font-size: 13px;
                 color: #111827;
-                line-height: 1.1;
+                line-height: 1.3;
                 word-break: break-word;
             }
 
@@ -54,8 +61,8 @@
             }
 
             .muted {
-                color: #6b7280;
-                font-size: 9px;
+                color: #374151;
+                font-size: 11px;
             }
 
             .center {
@@ -64,7 +71,7 @@
 
             /* compact small text for footer */
             .small {
-                font-size: 9px;
+                font-size: 11px;
                 color: #374151;
             }
 
@@ -79,6 +86,10 @@
                 text-align: left;
                 /* RTL: values on left */
                 white-space: nowrap;
+            }
+
+            .title {
+                font-size: 16px;
             }
 
             /* highlight amounts */
@@ -115,7 +126,7 @@
         <div class="receipt bg-white p-1">
             <!-- Header -->
             <div class="center">
-                <div class="text-xs font-bold">{{ $centerName ?? 'مركز أمل للياقة البدنية' }}</div>
+                <div class="title font-bold">{{ $centerName ?? 'مركز أمل للياقة البدنية' }}</div>
                 <div class="muted">{{ $addressLine ?? 'ورزازات' }}</div>
             </div>
 
