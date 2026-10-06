@@ -34,6 +34,9 @@ class TrainerForm
                             ->disabled(fn(callable $get, string $operation) => ($operation == 'edit' && !$get('edit_login')))
                             ->dehydrated(fn(callable $get, string $operation) => $get('edit_login') || $operation == 'create')
                             ->required(fn(callable $get, string $operation) => $get('edit_login') || $operation == 'create'),
+                        // Not a login field, so it stays editable without the toggle
+                        TextInput::make('name_ar')
+                            ->label(__('resources.trainer.name_arabic')),
                         TextInput::make('user.email')
                             ->label(__('resources.trainer.email'))
                             ->disabled(fn(callable $get, string $operation) => ($operation == 'edit' && !$get('edit_login')))

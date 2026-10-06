@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Trainer;
+use App\Models\TrainerPayout;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -18,9 +19,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class MonthlyTrainerPayments extends TableWidget
 {
@@ -28,59 +26,52 @@ class MonthlyTrainerPayments extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => Trainer::query()->where('status', 'active'))
+            ->query(fn(): Builder => Trainer::query()->with([
+                'groups.trainees',
+                // Only the current month's payout, with its installments already summed
+                'payouts' => fn($query) => $query
+                    ->whereDate('month_key', now()->startOfMonth())
+                    ->withSum('installments', 'amount'),
+            ]))
             ->heading(__('resources.trainer.monthly_payments'))
             ->modelLabel(__('resources.trainer.modelLabel'))
             ->pluralModelLabel(__('resources.trainer.pluralModelLabel'))
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('display_name')
                     ->label(__('resources.trainer.name'))
-                    ->searchable(),
-                TextColumn::make('paid_this_month')
-                    ->label(__('resources.trainer.paid_this_month'))
-                    ->state(fn (Trainer $record): string => number_format($record->monthlyPayoutSummary()['amount_paid'], 2) . ' MAD'),
-                TextColumn::make('remaining_this_month')
-                    ->label(__('resources.trainer.remaining_this_month'))
-                    ->state(fn (Trainer $record): string => number_format($record->monthlyPayoutSummary()['remaining_amount'], 2) . ' MAD'),
+                    ->searchable(['name', 'name_ar']),
                 TextColumn::make('salary_type')
                     ->label(__('resources.trainer.salary_type'))
-                    ->searchable(),
+                    ->formatStateUsing(fn(string $state): string => __("resources.trainer.{$state}")),
                 TextColumn::make('trainees_count')
                     ->label(__('resources.trainer.trainees_count'))
                     ->alignCenter()
-                    ->state(function (Trainer $record): string {
-                        // Call the method we created on the Trainer model
-                        $count = $record->calculateMonthlyPayout()['trainees_count'];
-
-                        return $count;
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable(),
+                    ->state(fn(Trainer $record): string => $record->calculateMonthlyPayout()['trainees_count'])
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('groups_count')
                     ->label(__('resources.trainer.groups_count'))
                     ->alignCenter()
-                    ->state(function (Trainer $record): string {
-                        // Call the method we created on the Trainer model
-                        $count = $record->calculateMonthlyPayout()['groups_count'];
-
-                        return $count;
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->searchable(),
-                // Use a computed column to show the calculated payout
+                    ->state(fn(Trainer $record): string => $record->calculateMonthlyPayout()['groups_count'])
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('monthly_payout')
                     ->label(__('resources.trainer.calculated_payout'))
-                    ->state(function (Trainer $record): string {
-                        return number_format($record->monthlyPayoutSummary()['expected_amount'], 2) . ' MAD';
-                    })
+                    ->state(fn(Trainer $record): string => self::money(self::monthSummary($record, now())['expected']))
                     ->color('success'),
+                TextColumn::make('paid_this_month')
+                    ->label(__('resources.payment.amount_paid'))
+                    ->state(fn(Trainer $record): string => self::money(self::monthSummary($record, now())['paid'])),
+                TextColumn::make('remaining_this_month')
+                    ->label(__('resources.payment.remaining_amount'))
+                    ->state(fn(Trainer $record): string => self::money(self::monthSummary($record, now())['remaining']))
+                    ->color(fn(Trainer $record): string => self::monthSummary($record, now())['remaining'] > 0 ? 'danger' : 'success'),
                 TextColumn::make('payout_status')
                     ->label(__('resources.payment.status.label'))
-                    ->state(fn (Trainer $record): string => $record->monthlyPayoutSummary()['status'])
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'paid' => 'success',
-                        'partial' => 'warning',
+                    ->state(fn(Trainer $record): string => self::monthSummary($record, now())['status'])
+                    ->formatStateUsing(fn(string $state): string => __("resources.payment.status.{$state}"))
+                    ->color(fn(string $state): string => match ($state) {
+                        TrainerPayout::STATUS_PAID => 'success',
+                        TrainerPayout::STATUS_PARTIAL => 'warning',
                         default => 'danger',
                     }),
                 TextColumn::make('created_at')
@@ -108,6 +99,43 @@ class MonthlyTrainerPayments extends TableWidget
             ]);
     }
 
+    /**
+     * Expected / paid / remaining for a trainer's month. Before the first installment
+     * there is no payout yet, so the expected amount is the live calculation.
+     */
+    public static function monthSummary(Trainer $record, $month): array
+    {
+        $month = Carbon::parse($month)->startOfMonth();
+
+        // Use the eager-loaded current-month payout when available
+        $payout = $month->isSameMonth(now()) && $record->relationLoaded('payouts')
+            ? $record->payouts->first()
+            : $record->payoutFor($month);
+
+        if (! $payout) {
+            $expected = (float) $record->calculateMonthlyPayout()['total_fees_this_month'];
+
+            return [
+                'expected' => $expected,
+                'paid' => 0.0,
+                'remaining' => $expected,
+                'status' => $expected > 0 ? TrainerPayout::STATUS_UNPAID : TrainerPayout::STATUS_PAID,
+            ];
+        }
+
+        return [
+            'expected' => (float) $payout->expected_amount,
+            'paid' => $payout->paidAmount(),
+            'remaining' => $payout->remainingAmount(),
+            'status' => $payout->status,
+        ];
+    }
+
+    private static function money(float $amount): string
+    {
+        return number_format($amount, 2) . ' MAD';
+    }
+
     public static function makeTrainerPaymentAction(): Action
     {
         return Action::make('recordPayment')
@@ -117,45 +145,36 @@ class MonthlyTrainerPayments extends TableWidget
             ->iconSize(IconSize::Large)
             ->modalHeading(__('resources.trainer.trainer_payment_processing'))
             ->modalWidth('md') // Adjust modal size
-            ->hidden(fn (Trainer $record): bool => $record->monthlyPayoutSummary()['remaining_amount'] <= 0)
-            // Define the structure of the modal form
             ->schema([
-                // You can use a Section for better grouping visually
                 Section::make(__('resources.trainer.payment_details'))
                     ->description(__('resources.trainer.current_balance_and_payment_entry'))
                     ->schema([
-                        // Read-only info based on the current record (Trainer Model)
                         TextEntry::make('trainer_name')
                             ->label(__('resources.trainee.name'))
-                            ->state(fn(Model $record): string => $record->name),
+                            ->state(fn(Trainer $record): string => $record->display_name),
 
+                        // Changing the month refreshes the balance below
                         DatePicker::make('applies_to_date')
                             ->label(__('resources.payment.applies_to_date'))
-                            ->default(Carbon::now()->startOfMonth())
+                            ->default(now()->startOfMonth()->toDateString())
                             ->displayFormat('F Y')
-                            ->live()
-                            ->required(),
+                            ->native(false)
+                            ->closeOnDateSelection()
+                            ->required()
+                            ->live(),
 
-                        // Assuming these attributes exist on your Trainer model for simplicity
                         TextEntry::make('amount_due')
                             ->label(__('resources.payment.amount_due'))
-                            ->state(fn (Trainer $record, Get $get): string => number_format(
-                                $record->monthlyPayoutSummary($get('applies_to_date'))['expected_amount'], 2
-                            ) . ' MAD'),
+                            ->state(fn(Trainer $record, Get $get): string => self::money(self::monthSummary($record, $get('applies_to_date') ?? now())['expected'])),
 
-                        TextEntry::make('amount_paid')
+                        TextEntry::make('already_paid')
                             ->label(__('resources.payment.amount_paid'))
-                            ->state(fn (Trainer $record, Get $get): string => number_format(
-                                $record->monthlyPayoutSummary($get('applies_to_date'))['amount_paid'], 2
-                            ) . ' MAD'),
+                            ->state(fn(Trainer $record, Get $get): string => self::money(self::monthSummary($record, $get('applies_to_date') ?? now())['paid'])),
 
                         TextEntry::make('remaining')
                             ->label(__('resources.payment.remaining_amount'))
-                            ->state(fn (Trainer $record, Get $get): string => number_format(
-                                $record->monthlyPayoutSummary($get('applies_to_date'))['remaining_amount'], 2
-                            ) . ' MAD'),
+                            ->state(fn(Trainer $record, Get $get): string => self::money(self::monthSummary($record, $get('applies_to_date') ?? now())['remaining'])),
 
-                        // The main input field for the admin
                         TextInput::make('amount_paid')
                             ->label(__('resources.trainer.amount_to_pay_now'))
                             ->numeric()
@@ -163,9 +182,18 @@ class MonthlyTrainerPayments extends TableWidget
                             ->placeholder('0.00')
                             ->minValue(0.01)
                             ->required()
+                            ->minValue(0.01)
+                            // Can't pay more than what is left for the selected month
+                            ->maxValue(fn(Trainer $record, Get $get): float => self::monthSummary($record, $get('applies_to_date') ?? now())['remaining'])
+                            ->default(fn(Trainer $record): float => self::monthSummary($record, now())['remaining'])
+                            ->validationMessages([
+                                'max' => fn(Trainer $record, Get $get): string => __('resources.trainer.amount_exceeds_remaining', [
+                                    'remaining' => self::money(self::monthSummary($record, $get('applies_to_date') ?? now())['remaining']),
+                                ]),
+                                'min' => __('resources.trainer.amount_must_be_positive'),
+                            ])
                             ->hint(__('resources.trainer.enter_full_or_partial_amount')),
 
-                        // Optional Notes field
                         Textarea::make('notes')
                             ->label(__('resources.notes'))
                             ->placeholder('...'),
@@ -173,50 +201,14 @@ class MonthlyTrainerPayments extends TableWidget
             ])
             ->modalSubmitActionLabel(__('resources.actions.pay_now')) // Renames the main action button
             ->modalCancelActionLabel(__('resources.actions.cancel')) // Renames the cancel button
-
-            // This is what happens when "Pay Now" is clicked
-            ->action(function (array $data, Model $record): void {
-                $month = Carbon::parse($data['applies_to_date'])->startOfMonth();
-                $amount = round((float) $data['amount_paid'], 2);
-
-                DB::transaction(function () use ($record, $month, $amount, $data): void {
-                    // Serialize payouts for this trainer so concurrent submissions cannot overpay.
-                    $trainer = Trainer::query()->lockForUpdate()->findOrFail($record->getKey());
-                    $summary = $trainer->monthlyPayoutSummary($month);
-
-                    if ($amount <= 0 || $amount > $summary['remaining_amount']) {
-                        throw ValidationException::withMessages([
-                            'amount_paid' => __('Enter an amount up to the remaining balance (:amount MAD).', [
-                                'amount' => number_format($summary['remaining_amount'], 2),
-                            ]),
-                        ]);
-                    }
-
-                    $periodStart = $month->toDateString();
-                    $periodEnd = $month->copy()->endOfMonth()->toDateString();
-                    $newPaidTotal = $summary['amount_paid'] + $amount;
-                    $status = $newPaidTotal >= $summary['expected_amount'] ? 'paid' : 'partial';
-
-                    $trainer->payments()->create([
-                        'amount_paid' => $amount,
-                        'expected_amount' => $summary['expected_amount'],
-                        'status' => $status,
-                        'applies_to_date' => $periodStart,
-                        'paid_at' => today(),
-                        'notes' => $data['notes'] ?? null,
-                    ]);
-
-                    // Keep the stored period status aligned with the cumulative payout total.
-                    $trainer->payments()
-                        ->whereBetween('applies_to_date', [$periodStart, $periodEnd])
-                        ->update(['status' => $status]);
-                });
+            ->action(function (array $data, Trainer $record): void {
+                $record->recordPayoutInstallment($data['applies_to_date'], (float) $data['amount_paid'], $data['notes'] ?? null);
 
                 Notification::make()
                     ->title(__('resources.messages.payment_recorded_successfully'))
                     ->body(__('resources.messages.payment_recorded_body', [
                         'amount_paid' => $data['amount_paid'],
-                        'trainer_name' => $record->name,
+                        'trainer_name' => $record->display_name,
                     ]))
                     ->success()
                     ->send();

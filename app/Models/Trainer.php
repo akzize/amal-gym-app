@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Trainer extends Model
 {
@@ -28,9 +29,50 @@ class Trainer extends Model
         // return $this->hasManyThrough(Trainee::class, Group::class, 'trainer_id', 'id', 'id', 'id');
         return $this->hasManyThrough(Trainee::class, GroupTrainee::class, 'group_id', 'id', 'id', 'trainee_id');
     }
-    public function payments()
+    /**
+     * Arabic name when set, otherwise the latin (French) name.
+     */
+    public function getDisplayNameAttribute(): string
     {
-        return $this->hasMany(TrainerPaymentRecord::class);
+        return $this->name_ar ?: $this->name;
+    }
+
+    public function payouts()
+    {
+        return $this->hasMany(TrainerPayout::class);
+    }
+
+    /**
+     * The payout for the given month, or null if nothing has been paid for it yet.
+     */
+    public function payoutFor($month): ?TrainerPayout
+    {
+        return $this->payouts()
+            ->whereDate('month_key', Carbon::parse($month)->startOfMonth())
+            ->withSum('installments', 'amount')
+            ->first();
+    }
+
+    /**
+     * Pay (part of) a month. The first installment opens the payout and freezes
+     * the expected amount, so later installments are measured against the same total.
+     */
+    public function recordPayoutInstallment($month, float $amount, ?string $notes = null): TrainerPayoutInstallment
+    {
+        return DB::transaction(function () use ($month, $amount, $notes) {
+            // whereDate rather than firstOrCreate: the date cast may store a time part
+            $payout = $this->payouts()->whereDate('month_key', Carbon::parse($month)->startOfMonth())->lockForUpdate()->first()
+                ?? $this->payouts()->create([
+                    'month_key' => $month,
+                    'expected_amount' => $this->calculateMonthlyPayout()['total_fees_this_month'],
+                ]);
+
+            return $payout->installments()->create([
+                'amount' => $amount,
+                'paid_at' => now(),
+                'notes' => $notes,
+            ]);
+        });
     }
 
     /**
@@ -40,7 +82,8 @@ class Trainer extends Model
     public function calculateMonthlyPayout()
     {
         // Get related data needed for calculation, e.g., total group fees this month, etc.
-        $groups = $this->groups()->get()->map(function ($group) {
+        // loadMissing lets callers eager-load groups.trainees and reuse it across calls.
+        $groups = $this->loadMissing('groups.trainees')->groups->map(function ($group) {
             return [
                 'group_id' => $group->id,
                 'group_name' => $group->name,

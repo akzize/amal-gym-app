@@ -125,5 +125,11 @@ return [
         'price_for_each_student' => 'Price Per Practitioner',
         'paid_this_month' => 'Paid This Month',
         'remaining_this_month' => 'Left to Pay This Month',
+        'salary_type' => 'Salary Type',
+        'fixed' => 'Fixed',
+        'percentage' => 'Percentage',
+        'amount_to_pay_now' => 'Amount to Pay Now',
+        'amount_exceeds_remaining' => 'The amount to pay now cannot exceed the remaining amount (:remaining).',
+        'amount_must_be_positive' => 'The amount to pay now must be greater than zero.',
     ],
 ];

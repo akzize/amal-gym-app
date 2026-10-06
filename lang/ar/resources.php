@@ -196,6 +196,8 @@ return [
         'current_balance_and_payment_entry' => 'الرصيد الحالي وإدخال الدفع',
         'enter_full_or_partial_amount' => 'أدخل المبلغ بالكامل أو جزءًا منه',
         'amount_to_pay_now' => 'المبلغ المستحق دفعه الآن',
+        'amount_exceeds_remaining' => 'لا يمكن أن يتجاوز المبلغ المستحق دفعه الآن المبلغ المتبقي (:remaining).',
+        'amount_must_be_positive' => 'يجب أن يكون المبلغ المستحق دفعه الآن أكبر من صفر.',
 
     ],
 

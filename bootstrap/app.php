@@ -14,5 +14,24 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->respond(function ($response, \Throwable $e, $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return $response;
+            }
+
+            $status = $response->getStatusCode();
+            if ($status >= 400) {
+                $view = view()->exists("errors.{$status}")
+                    ? "errors.{$status}"
+                    : ($status >= 500 && view()->exists('errors.500') ? 'errors.500' : 'errors.4xx');
+
+                if (view()->exists($view)) {
+                    return response()->view($view, [
+                        'exception' => $e,
+                    ], $status, $response->headers->all());
+                }
+            }
+
+            return $response;
+        });
     })->create();
