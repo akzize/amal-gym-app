@@ -2,7 +2,12 @@
 
 namespace App\Filament\Pages;
 
+use App\Support\DashboardMetrics;
+use Filament\Forms\Components\DatePicker;
+use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Panel;
@@ -19,7 +24,29 @@ use Illuminate\Contracts\Support\Htmlable;
 
 class Dashboard extends Page
 {
+    // Date range shared by every widget (as $this->pageFilters), kept in the URL and session
+    use HasFiltersForm;
+
     protected static string $routePath = '/';
+
+    public function filtersForm(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make()
+                ->columns(2)
+                ->schema([
+                    DatePicker::make('from')
+                        ->label(__('resources.dashboard.filter_from'))
+                        ->placeholder(DashboardMetrics::defaultFrom()->toDateString())
+                        ->maxDate(fn(Get $get) => $get('to')),
+                    DatePicker::make('to')
+                        ->label(__('resources.dashboard.filter_to'))
+                        ->placeholder(DashboardMetrics::defaultTo()->toDateString())
+                        ->minDate(fn(Get $get) => $get('from')),
+                ])
+                ->columnSpanFull(),
+        ]);
+    }
 
     protected static ?int $navigationSort = -2;
 
