@@ -26,7 +26,10 @@ class PaymentsTable
                 TextColumn::make('trainee.full_name')
                     ->label(__('resources.trainee.label'))
                     ->default('Non registred Trainee')
-                    ->numeric()
+                    // show the arabic name when the app is in arabic, fall back to the french one
+                    ->formatStateUsing(fn($state, Payment $record) => App::getLocale() == 'ar'
+                        ? ($record->trainee?->full_arabic_name ?: $state)
+                        : $state)
                     ->sortable(),
                 TextColumn::make('paymentType.name')
                     ->label(__('resources.payment.types.label'))
@@ -48,15 +51,16 @@ class PaymentsTable
                     ->sortable(),
                 TextColumn::make('amount_due')
                     ->label(__('resources.payment.amount_due'))
-                    ->numeric()
+                    ->numeric(locale: 'en')
                     ->sortable(),
                 TextColumn::make('amount_paid')
                     ->label(__('resources.payment.amount_paid'))
-                    ->numeric()
+                    ->numeric(locale: 'en')
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(__('resources.payment.status.label'))
                     ->badge()
+                    ->formatStateUsing(fn(string $state): string => __("resources.payment.status.{$state}"))
                     ->color(fn(string $state): string => match ($state) {
                         Payment::STATUS_PAID => 'success',
                         Payment::STATUS_UNPAID => 'danger',

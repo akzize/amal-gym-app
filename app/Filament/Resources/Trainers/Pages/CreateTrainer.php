@@ -10,6 +10,10 @@ class CreateTrainer extends CreateRecord
 {
     protected static string $resource = TrainerResource::class;
 
+    // The login user is created in mutateFormDataBeforeCreate(), so wrap the whole
+    // create flow in one transaction to avoid orphan users if the trainer fails to save.
+    protected ?bool $hasDatabaseTransactions = true;
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // dd($data);
