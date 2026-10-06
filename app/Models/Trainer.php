@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Trainer extends Model
 {
@@ -62,6 +63,35 @@ class Trainer extends Model
 
             'trainees_count' => $trainees_count,
             'groups_count' => $groups_count,
+        ];
+    }
+
+    /**
+     * Summarize the trainer's payout obligation and recorded payments for a month.
+     * The first recorded expected amount is retained as the month's due snapshot.
+     */
+    public function monthlyPayoutSummary(Carbon|string|null $period = null): array
+    {
+        $month = Carbon::parse($period ?? now())->startOfMonth();
+        $start = $month->toDateString();
+        $end = $month->copy()->endOfMonth()->toDateString();
+
+        $periodPayments = $this->payments()
+            ->whereBetween('applies_to_date', [$start, $end]);
+
+        $currentExpected = (float) $this->calculateMonthlyPayout()['total_fees_this_month'];
+        $recordedExpected = (clone $periodPayments)->orderBy('id')->value('expected_amount');
+        $expected = (float) ($recordedExpected ?? $currentExpected);
+        $paid = (float) (clone $periodPayments)->sum('amount_paid');
+        $remaining = max(0, $expected - $paid);
+
+        return [
+            'expected_amount' => $expected,
+            'amount_paid' => $paid,
+            'remaining_amount' => $remaining,
+            'status' => $paid >= $expected
+                ? 'paid'
+                : ($paid > 0 ? 'partial' : 'unpaid'),
         ];
     }
 }

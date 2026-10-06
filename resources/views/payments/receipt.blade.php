@@ -87,8 +87,23 @@
                 white-space: nowrap;
             }
 
+            /* header: logo + the two top lines, bold so they stand out on thermal paper */
+            .logo {
+                display: block;
+                margin: 0 auto 4px;
+                max-width: 40mm;
+                max-height: 20mm;
+                object-fit: contain;
+            }
+
             .title {
                 font-size: 16px;
+                font-weight: 800;
+            }
+
+            .subtitle {
+                font-size: 13px;
+                font-weight: 700;
             }
 
             /* highlight amounts */
@@ -114,6 +129,7 @@
         $cashier = auth()->user()?->name ?? '—';
         $traineeName = $payment->trainee?->full_name ?? '—';
         $groupName = $payment->group?->name ?? '—';
+        $associationLogo = $payment->group?->association?->logoDataUri();
         $subscriptionLabel = $payment->paymentType->name ?? '—';
         // customize the subscription label
         if($payment->paymentType->id == App\Models\Payment::TYPE_CUSTOM){
@@ -127,8 +143,11 @@
         <div class="receipt bg-white p-1">
             <!-- Header -->
             <div class="center">
-                <div class="title font-bold">{{ $centerName ?? 'AMAL GYM CENTER' }}</div>
-                <div class="muted">{{ $addressLine ?? 'Ouarzazate' }}</div>
+                @if ($associationLogo)
+                    <img class="logo" src="{{ $associationLogo }}" alt="" />
+                @endif
+                <div class="title">{{ $centerName ?? 'AMAL GYM CENTER' }}</div>
+                <div class="subtitle">{{ $addressLine ?? 'Ouarzazate' }}</div>
             </div>
 
             <div class="hr"></div>
@@ -166,15 +185,12 @@
 
             <!-- Financials -->
             @php
-                function fmt($n)
-                {
-                    return number_format((float) $n, 2, '.', ' ');
-                }
-                $mf = fmt($amount_due ?? 0);
-                $pd = fmt($proratedDiscount ?? 0);
-                $ap = fmt($amountPaid ?? 0);
-                $prev = fmt($previousBalance ?? 0);
-                $rem = fmt($remainingBalance ?? 0);
+                $fmt = fn($n) => number_format((float) $n, 2, '.', ' ');
+                $mf = $fmt($amount_due ?? 0);
+                $pd = $fmt($proratedDiscount ?? 0);
+                $ap = $fmt($amountPaid ?? 0);
+                $prev = $fmt($previousBalance ?? 0);
+                $rem = $fmt($remainingBalance ?? 0);
             @endphp
 
             <div class="row">

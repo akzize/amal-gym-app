@@ -123,5 +123,7 @@ return [
         'gym_salle' => 'Gym',
         'payment_percent' => 'Payment Percentage',
         'price_for_each_student' => 'Price Per Practitioner',
+        'paid_this_month' => 'Paid This Month',
+        'remaining_this_month' => 'Left to Pay This Month',
     ],
 ];

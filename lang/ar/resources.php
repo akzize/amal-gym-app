@@ -186,6 +186,8 @@ return [
         // dashboard
         'monthly_payments' => 'مدفوعات المدربين الشهرية',
         'calculated_payout' => 'المبلغ المحسوب',
+        'paid_this_month' => 'المدفوع هذا الشهر',
+        'remaining_this_month' => 'المتبقي للدفع هذا الشهر',
         'trainees_count' => 'عدد الممارسين',
         'groups_count' => 'عدد المجموعات',
 
