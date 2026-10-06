@@ -23,6 +23,9 @@ use Illuminate\Database\Eloquent\Builder;
 class MonthlyTrainerPayments extends TableWidget
 {
     protected static ?int $sort = 2;
+
+    protected int | string | array $columnSpan = 'full';
+
     public function table(Table $table): Table
     {
         return $table
@@ -90,7 +93,8 @@ class MonthlyTrainerPayments extends TableWidget
                 //
             ])
             ->recordActions([
-                $this->makeTrainerPaymentAction()
+                $this->makeTrainerPaymentAction(),
+                $this->makeReceiptsAction(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -202,7 +206,7 @@ class MonthlyTrainerPayments extends TableWidget
             ->modalSubmitActionLabel(__('resources.actions.pay_now')) // Renames the main action button
             ->modalCancelActionLabel(__('resources.actions.cancel')) // Renames the cancel button
             ->action(function (array $data, Trainer $record): void {
-                $record->recordPayoutInstallment($data['applies_to_date'], (float) $data['amount_paid'], $data['notes'] ?? null);
+                $installment = $record->recordPayoutInstallment($data['applies_to_date'], (float) $data['amount_paid'], $data['notes'] ?? null);
 
                 Notification::make()
                     ->title(__('resources.messages.payment_recorded_successfully'))
@@ -210,8 +214,41 @@ class MonthlyTrainerPayments extends TableWidget
                         'amount_paid' => $data['amount_paid'],
                         'trainer_name' => $record->display_name,
                     ]))
+                    ->actions([
+                        Action::make('print_receipt')
+                            ->label(__('resources.trainer.print_receipt'))
+                            ->icon('heroicon-o-printer')
+                            ->url(route('filament.admin.trainer-payouts.receipt', $installment), shouldOpenInNewTab: true),
+                    ])
+                    ->persistent()
                     ->success()
                     ->send();
             });
+    }
+
+    /**
+     * Lists the trainer's paid installments so any receipt can be (re)printed.
+     */
+    public static function makeReceiptsAction(): Action
+    {
+        return Action::make('payoutReceipts')
+            ->label('')
+            ->tooltip(__('resources.trainer.payout_receipts'))
+            ->color('gray')
+            ->icon('heroicon-o-printer')
+            ->iconSize(IconSize::Large)
+            ->modalHeading(fn(Trainer $record): string => __('resources.trainer.payout_receipts') . ' - ' . $record->display_name)
+            ->modalWidth('lg')
+            ->modalContent(fn(Trainer $record) => view('filament.widgets.trainer-payout-receipts', [
+                'payouts' => $record->payouts()
+                    ->with(['installments' => fn($query) => $query->latest('paid_at')])
+                    ->withSum('installments', 'amount')
+                    ->has('installments')
+                    ->latest('month_key')
+                    ->limit(12)
+                    ->get(),
+            ]))
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel(__('resources.actions.cancel'));
     }
 }

@@ -20,6 +20,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Widgets\MonthlyTrainerPayments;
 use App\Http\Controllers\PaymentReceiptController;
+use App\Http\Controllers\TrainerPayoutReceiptController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
@@ -66,6 +67,8 @@ class AdminPanelProvider extends PanelProvider
             ->authenticatedRoutes(function () {
                 Route::get('payments/{payment}/receipt', PaymentReceiptController::class)
                     ->name('payments.receipt');
+                Route::get('trainer-payouts/installments/{installment}/receipt', TrainerPayoutReceiptController::class)
+                    ->name('trainer-payouts.receipt');
             });
     }
 }

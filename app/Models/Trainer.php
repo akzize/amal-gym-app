@@ -71,6 +71,7 @@ class Trainer extends Model
                 'amount' => $amount,
                 'paid_at' => now(),
                 'notes' => $notes,
+                'recorded_by' => auth()->id(),
             ]);
         });
     }
@@ -115,18 +116,11 @@ class Trainer extends Model
      */
     public function monthlyPayoutSummary(Carbon|string|null $period = null): array
     {
-        $month = Carbon::parse($period ?? now())->startOfMonth();
-        $start = $month->toDateString();
-        $end = $month->copy()->endOfMonth()->toDateString();
+        $payout = $this->payoutFor($period ?? now());
 
-        $periodPayments = $this->payments()
-            ->whereBetween('applies_to_date', [$start, $end]);
-
-        $currentExpected = (float) $this->calculateMonthlyPayout()['total_fees_this_month'];
-        $recordedExpected = (clone $periodPayments)->orderBy('id')->value('expected_amount');
-        $expected = (float) ($recordedExpected ?? $currentExpected);
-        $paid = (float) (clone $periodPayments)->sum('amount_paid');
-        $remaining = max(0, $expected - $paid);
+        $expected = (float) ($payout?->expected_amount ?? $this->calculateMonthlyPayout()['total_fees_this_month']);
+        $paid = $payout?->paidAmount() ?? 0.0;
+        $remaining = $payout?->remainingAmount() ?? $expected;
 
         return [
             'expected_amount' => $expected,

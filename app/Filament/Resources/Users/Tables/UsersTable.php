@@ -17,6 +17,9 @@ class UsersTable
                 TextColumn::make('name')
                     ->label(__('resources.user.name'))
                     ->searchable(),
+                TextColumn::make('name_ar')
+                    ->label(__('resources.user.name_ar'))
+                    ->searchable(),
                 TextColumn::make('email')
                     ->label(__('resources.user.email'))
                     ->searchable(),

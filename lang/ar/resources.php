@@ -198,6 +198,9 @@ return [
         'amount_to_pay_now' => 'المبلغ المستحق دفعه الآن',
         'amount_exceeds_remaining' => 'لا يمكن أن يتجاوز المبلغ المستحق دفعه الآن المبلغ المتبقي (:remaining).',
         'amount_must_be_positive' => 'يجب أن يكون المبلغ المستحق دفعه الآن أكبر من صفر.',
+        'print_receipt' => 'طباعة الإيصال',
+        'payout_receipts' => 'إيصالات الأجرة',
+        'no_payout_receipts' => 'لا توجد دفعات مسجلة لهذا المدرب بعد.',
 
     ],
 

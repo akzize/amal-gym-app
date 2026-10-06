@@ -23,6 +23,11 @@ class TrainerPayoutInstallment extends Model
         static::deleted(fn ($installment) => $installment->payout->refreshStatus());
     }
 
+    public function recorder()
+    {
+        return $this->belongsTo(User::class, 'recorded_by');
+    }
+
     public function payout()
     {
         return $this->belongsTo(TrainerPayout::class, 'trainer_payout_id');

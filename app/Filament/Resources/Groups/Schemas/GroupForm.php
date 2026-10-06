@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Groups\Schemas;
 
-use Dom\Text;
+use App\Models\Trainer;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -32,8 +32,10 @@ class GroupForm
                     ]),
                 Select::make('trainer_id')
                     ->label(__('resources.trainer.label'))
-
-                    ->relationship('trainer', 'name'),
+                    ->relationship('trainer', 'name')
+                    ->getOptionLabelFromRecordUsing(fn (Trainer $record) => $record->display_name)
+                    ->searchable(['name', 'name_ar'])
+                    ->preload(),
 
                 TextInput::make('monthly_fee')
                     ->label(__('resources.payment.monthly_fee'))

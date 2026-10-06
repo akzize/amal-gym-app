@@ -23,7 +23,8 @@ class GroupsTable
                 ->sortable(),
                 TextColumn::make('trainer.name')
                 ->label(__('resources.trainer.label'))
-                ->numeric()
+                ->formatStateUsing(fn ($state, $record) => $record->trainer?->display_name ?? $state)
+                ->searchable(['name', 'name_ar'])
                 ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

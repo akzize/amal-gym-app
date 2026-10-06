@@ -20,6 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'name_ar',
         'email',
         'password',
     ];
@@ -50,5 +51,13 @@ class User extends Authenticatable
     public function trainer()
     {
         return $this->hasOne(Trainer::class);
+    }
+
+    /**
+     * Arabic name when set, otherwise the latin name.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->name_ar ?: $this->name;
     }
 }

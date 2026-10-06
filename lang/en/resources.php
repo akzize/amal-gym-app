@@ -131,5 +131,8 @@ return [
         'amount_to_pay_now' => 'Amount to Pay Now',
         'amount_exceeds_remaining' => 'The amount to pay now cannot exceed the remaining amount (:remaining).',
         'amount_must_be_positive' => 'The amount to pay now must be greater than zero.',
+        'print_receipt' => 'Print Receipt',
+        'payout_receipts' => 'Payout Receipts',
+        'no_payout_receipts' => 'No payments recorded for this trainer yet.',
     ],
 ];
