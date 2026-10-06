@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
@@ -24,6 +25,13 @@ class Payment extends Model
     const TYPE_CUSTOM = 6; #'inscription';
 
     protected static function booted() {
+        static::saving(function ($payment) {
+            $isMonthly = $payment->payment_type_id == self::TYPE_MONTHLY && $payment->applies_to_date;
+            $payment->month_key = $isMonthly
+                ? Carbon::parse($payment->applies_to_date)->startOfMonth()->toDateString()
+                : null;
+        });
+
         static::created(function($payment) {
             // create payment installment logic here if amount paid is less than amount due
             if ($payment->amount_paid < $payment->amount_due) {

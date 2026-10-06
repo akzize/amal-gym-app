@@ -6,27 +6,24 @@
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>Receipt {{ $receiptNumber ?? '' }}</title>
 
-        <!-- Print rules: set paper width via $printerWidth (58mm or 80mm) -->
+        <!-- Print rules: paper width comes from $printerWidth (config receipt.paper_width).
+             The @page size (width x receipt height) is set by the script at the bottom. -->
         <style>
             :root {
-                --printer-width: {{ $printerWidth ?? '58mm' }};
+                --printer-width: {{ $printerWidth ?? '80mm' }};
             }
 
             @page {
-                size: var(--printer-width) auto;
                 margin: 4mm;
             }
 
             @media print {
 
-                html,
+                /* drop screen padding/centering so the receipt starts at the page margin */
                 body {
-                    width: var(--printer-width);
-                }
-
-                /* reduce default margins when printing */
-                body {
+                    display: block !important;
                     margin: 0;
+                    padding: 0 !important;
                     -webkit-print-color-adjust: exact;
                 }
             }
@@ -115,7 +112,7 @@
         $amountPaid = $payment->amount_paid ?? 0;
         $remainingBalance = ($payment->amount_due - $payment->amount_paid) ?? 0;
     @endphp
-    <body class="flex items-center justify-center bg-white p-2" dir="rtl">
+    <body class="flex items-center justify-center bg-white p-2">
         <div class="receipt bg-white p-1">
             <!-- Header -->
             <div class="center">
@@ -195,12 +192,7 @@
             <div class="center small" style="margin-top:6px;">{{ $footer ?? '' }}</div>
         </div>
 
-        <script>
-            // When printing from browser with window.print(), we prefer to open in new window with print
-            function printReceipt() {
-                window.print();
-            }
-        </script>
+        @include('payments.partials.receipt-print-script')
     </body>
 
 </html>

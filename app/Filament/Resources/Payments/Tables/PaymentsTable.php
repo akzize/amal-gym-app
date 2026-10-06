@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Payments\Tables;
 
 use App\Models\Payment;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -12,7 +13,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
-use Torgodly\Html2Media\Actions\Html2MediaAction;
 
 class PaymentsTable
 {
@@ -89,12 +89,12 @@ class PaymentsTable
                     ->label('')
                     ->color('danger')
                     ->iconSize('md'),
-                Html2MediaAction::make('generate_receipt')
+                Action::make('print_receipt')
                     ->label('')
                     ->icon(Heroicon::Printer)
                     ->iconSize('md')
-                    ->content(fn($record) => view('payments.receipt_ar', ['payment' => $record]))
-                    ->orientation('portrait'),
+                    ->url(fn(Payment $record) => route('filament.admin.payments.receipt', $record))
+                    ->openUrlInNewTab(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

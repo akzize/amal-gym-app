@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Date;
 
 use function Laravel\Prompts\select;
@@ -32,6 +33,7 @@ class PaymentForm
                 Select::make('payment_type_id')
                     ->label(__('resources.payment.types.label'))
                     ->relationship('paymentType', 'name')
+                    ->getOptionLabelFromRecordUsing(fn(PaymentType $record) => $record->name_ar ?: $record->name)
                     ->disabledOn('edit')
                     ->live(onBlur: true)
                     ->reactive()
@@ -69,29 +71,15 @@ class PaymentForm
                         }
                     })
                     ->required(),
-                Select::make('trainee_id')
-                    ->label(__('resources.trainee.label'))
-                    ->disabledOn('edit')
-                    ->relationship('trainee', 'full_name')
-                    ->searchable()
-                    ->live()
-                    ->partiallyRenderComponentsAfterStateUpdated(['payment_type_id', 'group_id'])
-                    ->hidden(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_ONE_SESSION)
-                    ->preload(),
-                // Group select in case the trainee has multiple groups
+                // Select the group first so the trainee list can be scoped to it.
                 Select::make('group_id')
                     ->label(__('resources.group.label'))
                     ->disabledOn('edit')
-
-                    ->options(function (callable $get, $set) {
-                        $traineeId = $get('trainee_id');
-                        $trainee = Trainee::find($traineeId);
-                        $groups = $trainee ? $trainee->groups->pluck('name', 'id') : [];
-
-                        return $groups;
-                    })
-                    ->default(fn(callable $get) => $get('default_group_id'))
+                    ->options(fn () => Group::query()->pluck('name', 'id'))
+                    ->default(fn (callable $get) => $get('default_group_id'))
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        $set('trainee_id', null);
+
                         $groupId = $get('group_id');
                         $group = Group::find($groupId);
 
@@ -107,9 +95,27 @@ class PaymentForm
                             $set('amount_due', $group ? $group->registration_fee : 0);
                         }
                     })
-                    ->reactive()
-                    // ->disabledOn('edit')
-                    ->hidden(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_ONE_SESSION),
+                    ->live()
+                    ->hidden(fn (callable $get) => $get('payment_type_id') == Payment::TYPE_ONE_SESSION),
+                Select::make('trainee_id')
+                    ->label(__('resources.trainee.label'))
+                    ->disabledOn('edit')
+                    ->relationship('trainee', 'full_name', modifyQueryUsing: function (Builder $query, callable $get) {
+                        $groupId = $get('group_id');
+
+                        if (! $groupId) {
+                            return $query->whereRaw('1 = 0');
+                        }
+
+                        return $query->whereHas('groups', fn (Builder $groupQuery) => $groupQuery->whereKey($groupId));
+                    })
+                    ->getOptionLabelFromRecordUsing(fn (Trainee $record) => $record->full_arabic_name ?: $record->full_name)
+                    ->searchable(['full_name', 'full_arabic_name'])
+                    ->disabled(fn (callable $get) => blank($get('group_id')))
+                    ->live()
+                    ->partiallyRenderComponentsAfterStateUpdated(['payment_type_id', 'group_id'])
+                    ->hidden(fn(callable $get) => $get('payment_type_id') == Payment::TYPE_ONE_SESSION)
+                    ->preload(),
 
                 // field to determine how many months to add for custom subscription
                 TextInput::make('custom_duration_months')

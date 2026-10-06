@@ -1,7 +1,8 @@
 <?php
 
-namespace Filament\Pages;
+namespace App\Filament\Pages;
 
+use Filament\Pages\Page;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Panel;

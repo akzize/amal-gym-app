@@ -62,6 +62,7 @@ class GroupForm
                 TextInput::make('max_capacity')
                     ->numeric()
                     ->default(20)
+                    ->label(__('resources.group.max_capacity'))
                     ->required(),
                 Select::make('association_id')
                 ->label(__('resources.association.singule'))

@@ -11,6 +11,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -87,7 +88,13 @@ class CreatePayment extends CreateRecord
 
                 // --- 2. PAYMENT CREATION ---
                 // Create the main Payment record within the transaction
-                $payment = static::getModel()::create($data);
+                try {
+                    $payment = static::getModel()::create($data);
+                } catch (UniqueConstraintViolationException) {
+                    throw ValidationException::withMessages([
+                        'applies_to_date' => 'A monthly payment already exists for this trainee and group in the selected month.',
+                    ]);
+                }
                 return $payment;
             }
         );
