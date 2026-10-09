@@ -31,6 +31,8 @@ class CollectedPaymentsTable extends TableWidget
                 ->collectedQuery()
                 ->with(['payment.trainee', 'payment.group', 'payment.paymentType']))
             ->heading(__('resources.dashboard.collected_payments'))
+            ->modelLabel(__('resources.payment.modelLabel'))
+            ->pluralModelLabel(__('resources.payment.pluralModelLabel'))
             ->defaultSort('paid_at', 'desc')
             ->columns([
                 TextColumn::make('paid_at')
