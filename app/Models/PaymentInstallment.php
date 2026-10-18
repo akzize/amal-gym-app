@@ -16,6 +16,13 @@ class PaymentInstallment extends Model
         ];
     }
 
+    protected static function booted()
+    {
+        // Keep the payment's amount_paid (and so its status) in step with its installments
+        static::saved(fn(PaymentInstallment $installment) => $installment->payment?->syncAmountPaid());
+        static::deleted(fn(PaymentInstallment $installment) => $installment->payment?->syncAmountPaid());
+    }
+
     public function payment()
     {
         return $this->belongsTo(Payment::class);

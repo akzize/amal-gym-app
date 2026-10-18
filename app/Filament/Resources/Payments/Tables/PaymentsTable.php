@@ -39,10 +39,11 @@ class PaymentsTable
                         $isArabicSelected = $selectedLang == 'ar';
                         // change the state to use the arabic field if ar selected
                         $state = $isArabicSelected ? $paymentType->name_ar : $state;
-                        if ($paymentType->id == Payment::TYPE_CUSTOM) {
+                        // a month of a multi-month subscription
+                        if ($record->isSubscriptionMonth()) {
                             $duration_months = $record->subscription->duration_months;
                             $unit = $isArabicSelected ? 'أشهر' : Str::plural('month', $duration_months);
-                            $state = $duration_months . ' ' . $unit;
+                            $state .= ' · ' . $duration_months . ' ' . $unit;
                         }
 
                         $state = Str::of($state)->replace('_', ' ');

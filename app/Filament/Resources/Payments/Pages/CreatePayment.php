@@ -6,6 +6,8 @@ use App\Filament\Resources\Payments\PaymentResource;
 use App\Models\Payment;
 use App\Models\PaymentInstallment;
 use App\Models\Subscription;
+use App\Support\MonthlySubscription;
+use App\Support\PriceQuote;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
@@ -88,52 +90,36 @@ class CreatePayment extends CreateRecord
         $payment = DB::transaction(
             function () use ($data) {
 
-                $subscription = null;
+                // The price is always recomputed here, never taken from the browser
+                $quote = PriceQuote::forPayment($data);
+                $discountReason = $data['discount_reason'] ?? null;
 
-                // --- 1. SUBSCRIPTION CREATION LOGIC ---
+                // A subscription of several months becomes one monthly payment per month
+                if ($data['payment_type_id'] == Payment::TYPE_CUSTOM) {
+                    return MonthlySubscription::create($data, $quote, $discountReason);
+                }
+
                 if ($data['payment_type_id'] == Payment::TYPE_INSURANCE) {
-                    // Check for existing subscription (assuming isSubscriptionCreated throws an exception if found)
+                    // Check for existing subscription (isSubscriptionCreated throws if found)
                     $this->isSubscriptionCreated($data);
 
-                    $subscription = Subscription::createOrFirst([
+                    $data['subscription_id'] = Subscription::create([
                         'trainee_id' => $data['trainee_id'],
+                        'group_id' => $data['group_id'] ?? null,
                         'payment_type_id' => $data['payment_type_id'],
                         'start_date' => $data['subscription']['start_date'],
                         'end_date' => $data['subscription']['end_date'],
-                        'duration_months' => 6,
+                        'duration_months' => (int) ($data['custom_duration_months'] ?? 1),
                         'status' => 'active',
-                    ]);
-
-                    // unset subscription data from payment data
-                    unset($data['subscription']);
-                } elseif ($data['payment_type_id'] == Payment::TYPE_CUSTOM) {
-                    // Check for existing subscription
-                    $this->isSubscriptionCreated($data);
-
-                    $subscription = Subscription::createOrFirst([
-                        'trainee_id' => $data['trainee_id'],
-                        'group_id' => $data['group_id'],
-                        'payment_type_id' => $data['payment_type_id'],
-                        'start_date' => $data['subscription']['start_date'],
-                        'end_date' => $data['subscription']['end_date'],
-                        'duration_months' => $data['custom_duration_months'],
-                        'status' => 'active',
-                    ]);
-
-                    // unset subscription data from payment data
-                    unset($data['subscription']);
-                } elseif ($data['payment_type_id'] == Payment::TYPE_ONE_SESSION) {
-                    $data['amount_due'] = $data['amount_paid'];
+                    ])->id;
                 }
 
-                // Update the data array for Payment creation
-                if ($subscription) {
-                    $data['subscription_id'] = $subscription->id;
-                }
+                $data['amount_gross'] = $quote->gross;
+                $data['discount_total'] = $quote->discountTotal;
+                $data['amount_due'] = $quote->net();
 
                 // Unset fields used only for logic
-                unset($data['subscription']);
-                unset($data['custom_duration_months']);
+                unset($data['subscription'], $data['custom_duration_months'], $data['discount_ids'], $data['manual_discount'], $data['discount_reason']);
 
                 // --- 2. PAYMENT CREATION ---
                 // Create the main Payment record within the transaction
@@ -146,6 +132,9 @@ class CreatePayment extends CreateRecord
                         'data.applies_to_date' => __('resources.payment.duplicate_monthly_error'),
                     ]);
                 }
+
+                $quote->recordOn($payment, $discountReason, auth()->id());
+
                 return $payment;
             }
         );
@@ -175,8 +164,9 @@ class CreatePayment extends CreateRecord
             // throw error
             throw ValidationException::withMessages([
                 // attach message to a field visible on the form
-                'subscription.start_date' => 'A subscription already exists for this trainee and payment type in the selected date range.',
-                'payment_type_id' => 'A subscription already exists for this trainee and payment type in the selected date range.',
+                // Form errors live under "data.", without it the message was silently dropped
+                'data.subscription.start_date' => 'A subscription already exists for this trainee and payment type in the selected date range.',
+                'data.payment_type_id' => 'A subscription already exists for this trainee and payment type in the selected date range.',
             ]);
         }
     }

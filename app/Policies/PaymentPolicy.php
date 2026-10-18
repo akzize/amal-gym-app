@@ -32,6 +32,14 @@ class PaymentPolicy
         return $authUser->can('Update:Payment');
     }
 
+    /**
+     * Edit the fields that are otherwise locked once a payment is recorded.
+     */
+    public function fullEdit(AuthUser $authUser): bool
+    {
+        return $authUser->can('FullEdit:Payment');
+    }
+
     public function delete(AuthUser $authUser, Payment $payment): bool
     {
         return $authUser->can('Delete:Payment');

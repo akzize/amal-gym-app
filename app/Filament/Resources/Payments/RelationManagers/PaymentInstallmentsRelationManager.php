@@ -79,16 +79,8 @@ class PaymentInstallmentsRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->modalWidth('md')
-                    ->after(function ($livewire) {
-                        // $record is the created installment
-                        $payment = $this->getOwnerRecord();
-                        $payment->amount_paid = $payment->installments()->sum('amount_paid');
-
-                        // Update payment status 
-                        $payment->status = $payment->amount_paid >= $payment->amount_due ? 'paid' : 'partial';
-                        if ($payment->amount_paid == 0) $payment->status = 'unpaid';
-                        $payment->save();
-
+                    ->after(function (Component $livewire) {
+                        $this->getOwnerRecord()->refresh(); // amount_paid and status were resynced by the installment
                         $livewire->dispatch('refreshPaymentComponents');
                     }),
             ])
@@ -129,16 +121,7 @@ class PaymentInstallmentsRelationManager extends RelationManager
                 // DissociateAction::make(),
                 DeleteAction::make()
                     ->after(function (Component $livewire) {
-                        // $record is the deleted installment
-                        $payment = $this->getOwnerRecord();
-                        $payment->amount_paid = $payment->installments()->sum('amount_paid');
-
-                        // Update payment status 
-                        $payment->status = $payment->amount_paid >= $payment->amount_due ? 'paid' : 'partial';
-                        if ($payment->amount_paid == 0) $payment->status = 'unpaid';
-
-                        $payment->save();
-
+                        $this->getOwnerRecord()->refresh(); // amount_paid and status were resynced by the installment
                         $livewire->dispatch('refreshPaymentComponents');
                     }),
             ])

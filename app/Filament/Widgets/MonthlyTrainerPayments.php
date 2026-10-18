@@ -38,7 +38,8 @@ class MonthlyTrainerPayments extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn(): Builder => Trainer::query()->with([
+            // deactivated trainers are no longer paid
+            ->query(fn(): Builder => Trainer::query()->active()->with([
                 'groups.trainees',
                 'latestPayoutInstallment',
                 // Only the current month's payout, with its installments already summed
