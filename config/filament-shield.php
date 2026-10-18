@@ -169,6 +169,10 @@ return [
                 'update',
                 'delete',
             ],
+            // Unlocks the fields that are read-only on edit (trainee, group, dates, amounts)
+            \App\Filament\Resources\Payments\PaymentResource::class => [
+                'fullEdit',
+            ],
         ],
         'exclude' => [
             //

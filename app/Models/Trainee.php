@@ -19,35 +19,57 @@ class Trainee extends Model
     return $this->image ? asset('storage/' . $this->image) : "storage/trainees/default.png";
 }
 
+    // A trainee who stopped coming is deactivated, not deleted
+    protected $attributes = ['is_active' => true];
+
+    protected function casts(): array
+    {
+        return ['is_active' => 'boolean'];
+    }
+
     // relations
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'group_trainees')->withTimestamps()->withPivot('joined_at');
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
     /**
-     * Active trainees with at least one group whose fee for $month is not settled:
-     * no paid (or free) monthly payment, and no active multi-month subscription covering it.
+     * Only a trainee without payment history can be deleted (e.g. created by mistake); others are deactivated.
+     */
+    public function canBeDeleted(): bool
+    {
+        return ! $this->payments()->exists() && ! $this->subscriptions()->exists();
+    }
+
+    /**
+     * Active trainees with at least one open group whose fee for $month is not settled: no paid (or free)
+     * monthly payment. Multi-month subscriptions have one monthly payment per month, so they count too.
      */
     public function scopeUnpaidForMonth(Builder $query, CarbonInterface $month): Builder
     {
-        $start = $month->copy()->startOfMonth();
-        $end = $month->copy()->endOfMonth();
-
         return $query
             ->where('is_active', true)
             ->whereHas('groups', fn(Builder $groups) => $groups
+                ->whereNull('groups.closed_at')
                 ->whereNotExists(fn($payments) => $payments->from('payments')
                     ->whereColumn('payments.trainee_id', 'group_trainees.trainee_id')
                     ->whereColumn('payments.group_id', 'group_trainees.group_id')
-                    ->whereDate('payments.month_key', $start)
-                    ->whereIn('payments.status', [Payment::STATUS_PAID, Payment::STATUS_FREE]))
-                ->whereNotExists(fn($subscriptions) => $subscriptions->from('subscriptions')
-                    ->whereColumn('subscriptions.trainee_id', 'group_trainees.trainee_id')
-                    ->whereColumn('subscriptions.group_id', 'group_trainees.group_id')
-                    ->where('subscriptions.payment_type_id', Payment::TYPE_CUSTOM)
-                    ->where('subscriptions.status', 'active')
-                    ->whereDate('subscriptions.start_date', '<=', $end)
-                    ->whereDate('subscriptions.end_date', '>=', $start)));
+                    ->whereDate('payments.month_key', $month->copy()->startOfMonth())
+                    ->whereIn('payments.status', [Payment::STATUS_PAID, Payment::STATUS_FREE])));
     }
 }

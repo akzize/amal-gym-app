@@ -9,6 +9,16 @@ class Association extends Model
 {
     protected $guarded = [];
 
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
+    }
+
+    public function canBeDeleted(): bool
+    {
+        return ! $this->groups()->exists();
+    }
+
     /**
      * The logo as a base64 data URI (for receipts), or null when no logo file exists.
      * Embedding it works whatever disk/visibility the upload was stored with.

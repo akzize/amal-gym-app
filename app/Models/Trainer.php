@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,27 @@ class Trainer extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status !== self::STATUS_INACTIVE;
+    }
+
+    /**
+     * Only a trainer with no groups and no payouts can be deleted; others are deactivated.
+     */
+    public function canBeDeleted(): bool
+    {
+        return ! $this->groups()->exists() && ! $this->payouts()->exists();
+    }
 
     public function user()
     {
@@ -93,13 +115,16 @@ class Trainer extends Model
     {
         // Get related data needed for calculation, e.g., total group fees this month, etc.
         // loadMissing lets callers eager-load groups.trainees and reuse it across calls.
-        $groups = $this->loadMissing('groups.trainees')->groups->map(function ($group) {
+        // Closed groups and deactivated trainees no longer bring in fees
+        $groups = $this->loadMissing('groups.trainees')->groups->reject->isClosed()->map(function ($group) {
+            $trainees_count = $group->trainees->where('is_active', true)->count();
+
             return [
                 'group_id' => $group->id,
                 'group_name' => $group->name,
                 'monthly_amount' => $group->monthly_fee,
-                'trainees_count' => $group->trainees->count(),
-                'trainer_payment' => $group->monthly_fee * $group->trainees->count(),
+                'trainees_count' => $trainees_count,
+                'trainer_payment' => $group->monthly_fee * $trainees_count,
             ];
         });
 

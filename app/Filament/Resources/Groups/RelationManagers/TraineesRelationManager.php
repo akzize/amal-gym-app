@@ -5,8 +5,6 @@ namespace App\Filament\Resources\Groups\RelationManagers;
 use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\DetachBulkAction;
 use Filament\Actions\EditAction;
@@ -25,6 +23,7 @@ use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TraineesRelationManager extends RelationManager
 {
@@ -36,19 +35,17 @@ class TraineesRelationManager extends RelationManager
             ->components([
                 TextInput::make('full_name')
                     ->required(),
-                TextInput::make('full_arabic_name'),
+                TextInput::make('full_arabic_name')
+                    ->required(),
                 FileUpload::make('image')
                     ->image(),
                 Select::make('gender')
                     ->options(['male' => 'Male', 'female' => 'Female'])
                     ->required(),
-                DatePicker::make('dob')
-                    ->required(),
+                DatePicker::make('dob'),
                 TextInput::make('phone')
-                    ->tel()
-                    ->required(),
+                    ->tel(),
                 Textarea::make('address')
-                    ->required()
                     ->columnSpanFull(),
             ]);
     }
@@ -130,6 +127,7 @@ class TraineesRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->label(__('resources.trainee.actions.add_to_group'))
+                    ->recordSelectOptionsQuery(fn(Builder $query) => $query->where('is_active', true))
                     ->preloadRecordSelect()
                     ->multiple(),
             ])
@@ -137,17 +135,14 @@ class TraineesRelationManager extends RelationManager
                 ViewAction::make()
                     ->label('')
                     ->iconSize(IconSize::Medium),
+                // Removing from the group only; trainees are deactivated from their own page
                 DetachAction::make()
-                    ->label('')
-                    ->iconSize(IconSize::Medium),
-                DeleteAction::make()
                     ->label('')
                     ->iconSize(IconSize::Medium),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DetachBulkAction::make(),
-                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

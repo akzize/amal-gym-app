@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Trainers\Pages;
 
 use App\Filament\Resources\Trainers\TrainerResource;
 use App\Models\User;
-use Filament\Actions\DeleteAction;
+use App\Filament\Actions\Lifecycle;
 use Filament\Resources\Pages\EditRecord;
 
 class EditTrainer extends EditRecord
@@ -14,7 +14,10 @@ class EditTrainer extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            // the status field on the form follows the action
+            Lifecycle::deactivateTrainer()->after(fn(self $livewire) => $livewire->refreshFormData(['status'])),
+            Lifecycle::activateTrainer()->after(fn(self $livewire) => $livewire->refreshFormData(['status'])),
+            Lifecycle::deleteIfUnused(),
         ];
     }
 

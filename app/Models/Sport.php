@@ -9,4 +9,14 @@ class Sport extends Model
 {
     /** @use HasFactory<\Database\Factories\SportFactory> */
     use HasFactory;
+
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
+    }
+
+    public function canBeDeleted(): bool
+    {
+        return ! $this->groups()->exists();
+    }
 }

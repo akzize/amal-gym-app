@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources\Trainees\Tables;
 
+use App\Filament\Actions\Lifecycle;
 use App\Models\Trainee;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Support\Enums\IconSize;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -47,6 +48,9 @@ class TraineesTable
                     ->label(__('resources.trainee.phone'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
+                IconColumn::make('is_active')
+                    ->label(__('resources.lifecycle.status'))
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -57,6 +61,13 @@ class TraineesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                // Deactivated trainees are hidden by default, the filter shows them again
+                TernaryFilter::make('is_active')
+                    ->label(__('resources.lifecycle.status'))
+                    ->trueLabel(__('resources.lifecycle.active'))
+                    ->falseLabel(__('resources.lifecycle.inactive'))
+                    ->placeholder(__('resources.lifecycle.all'))
+                    ->default(true),
                 // Same rule as the dashboard's "unpaid this month" card, which links here
                 Filter::make('unpaid_this_month')
                     ->label(__('resources.dashboard.unpaid_this_month'))
@@ -66,7 +77,13 @@ class TraineesTable
                 EditAction::make()
                     ->label('')
                     ->iconSize(IconSize::Medium),
-                DeleteAction::make()
+                Lifecycle::deactivateTrainee()
+                    ->iconButton()
+                    ->iconSize(IconSize::Medium),
+                Lifecycle::activateTrainee()
+                    ->iconButton()
+                    ->iconSize(IconSize::Medium),
+                Lifecycle::deleteIfUnused()
                     ->label('')
                     ->iconSize(IconSize::Medium),
                 Html2MediaAction::make('print')
@@ -83,7 +100,7 @@ class TraineesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    Lifecycle::deactivateTrainees(),
                     Html2MediaAction::make('export')
                         ->label(__('resources.trainee.actions.export_selected_trainees'))
                         ->accessSelectedRecords()

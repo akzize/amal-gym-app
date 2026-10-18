@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Sports\Pages;
 
 use App\Filament\Resources\Sports\SportResource;
-use Filament\Actions\DeleteAction;
+use App\Filament\Actions\Lifecycle;
 use Filament\Resources\Pages\EditRecord;
 
 class EditSport extends EditRecord
@@ -13,7 +13,7 @@ class EditSport extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            Lifecycle::deleteIfUnused(),
         ];
     }
 }

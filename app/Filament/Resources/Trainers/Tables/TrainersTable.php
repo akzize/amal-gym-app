@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\Trainers\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use App\Filament\Actions\Lifecycle;
+use App\Models\Trainer;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class TrainersTable
@@ -29,6 +30,8 @@ class TrainersTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(__('resources.trainer.status.name'))
+                    ->formatStateUsing(fn(string $state): string => __("resources.trainer.status.{$state}"))
+                    ->color(fn(string $state): string => $state === Trainer::STATUS_ACTIVE ? 'success' : 'gray')
                     ->badge(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -40,15 +43,20 @@ class TrainersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Deactivated trainers are hidden by default
+                SelectFilter::make('status')
+                    ->label(__('resources.trainer.status.name'))
+                    ->options([
+                        Trainer::STATUS_ACTIVE => __('resources.trainer.status.active'),
+                        Trainer::STATUS_INACTIVE => __('resources.trainer.status.inactive'),
+                    ])
+                    ->default(Trainer::STATUS_ACTIVE),
             ])
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                Lifecycle::deactivateTrainer(),
+                Lifecycle::activateTrainer(),
+                Lifecycle::deleteIfUnused(),
             ]);
     }
 }

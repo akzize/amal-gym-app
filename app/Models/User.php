@@ -3,13 +3,15 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     // SoftDeletes: a deleted user can no longer log in (the auth query skips trashed rows),
@@ -54,6 +56,15 @@ class User extends Authenticatable
     public function trainer()
     {
         return $this->hasOne(Trainer::class);
+    }
+
+    /**
+     * Checked on every panel request: a deactivated trainer is locked out, even mid-session.
+     * (Without this contract Filament only lets users in when APP_ENV=local.)
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->trainer?->isActive() ?? true;
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Associations\Pages;
 
 use App\Filament\Resources\Associations\AssociationResource;
-use Filament\Actions\DeleteAction;
+use App\Filament\Actions\Lifecycle;
 use Filament\Resources\Pages\EditRecord;
 
 class EditAssociation extends EditRecord
@@ -13,7 +13,7 @@ class EditAssociation extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            Lifecycle::deleteIfUnused(),
         ];
     }
 }

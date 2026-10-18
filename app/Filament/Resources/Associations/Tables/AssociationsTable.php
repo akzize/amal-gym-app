@@ -2,9 +2,7 @@
 
 namespace App\Filament\Resources\Associations\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
+use App\Filament\Actions\Lifecycle;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -57,12 +55,8 @@ class AssociationsTable
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                // only while no group uses it
+                Lifecycle::deleteIfUnused(),
             ]);
     }
 }

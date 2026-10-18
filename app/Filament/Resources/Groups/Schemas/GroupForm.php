@@ -6,6 +6,7 @@ use App\Models\Trainer;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class GroupForm
 {
@@ -32,7 +33,9 @@ class GroupForm
                     ]),
                 Select::make('trainer_id')
                     ->label(__('resources.trainer.label'))
-                    ->relationship('trainer', 'name')
+                    // deactivated trainers can't take new groups (the current one still shows)
+                    ->relationship('trainer', 'name', modifyQueryUsing: fn (Builder $query, callable $get) => $query
+                        ->where(fn (Builder $trainers) => $trainers->where('status', Trainer::STATUS_ACTIVE)->orWhere('trainers.id', $get('trainer_id'))))
                     ->getOptionLabelFromRecordUsing(fn (Trainer $record) => $record->display_name)
                     ->searchable(['name', 'name_ar'])
                     ->preload(),

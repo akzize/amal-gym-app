@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Trainees\Schemas;
 
+use App\Models\Trainee;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -9,6 +10,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class TraineeForm
 {
@@ -35,32 +37,31 @@ class TraineeForm
                             ->label(__('resources.trainee.full_name'))
                             ->required(),
                         TextInput::make('full_arabic_name')
-                            ->label(__('resources.trainee.full_arabic_name')),
+                            ->label(__('resources.trainee.full_arabic_name'))
+                            ->required(),
                         Select::make('gender')
                             ->options(['male' => 'Male', 'female' => 'Female'])
                             ->label(__('resources.trainee.gender'))
                             ->required(),
                         DatePicker::make('dob')
-                            ->label(__('resources.trainee.dob'))
-
-                            ->required(),
+                            ->label(__('resources.trainee.dob')),
                         TextInput::make('phone')
                             ->label(__('resources.trainee.phone'))
-
-                            ->tel()
-                            ->required(),
+                            ->tel(),
                     ]),
                 Textarea::make('address')
                     ->label(__('resources.trainee.address'))
-
-                    ->required()
                     ->columnSpanFull(),
 
                 Select::make('group_id')
                     ->label('Group')
                     ->label(__('resources.trainee.group'))
 
-                    ->relationship('groups', 'name')
+                    // open groups, plus closed ones the trainee is already in (saving syncs this list)
+                    ->relationship('groups', 'name', modifyQueryUsing: fn (Builder $query, ?Trainee $record) => $query
+                        ->where(fn (Builder $groups) => $groups
+                            ->whereNull('groups.closed_at')
+                            ->when($record, fn (Builder $groups) => $groups->orWhereIn('groups.id', $record->groups()->pluck('groups.id')))))
                     ->multiple()
                     ->preload()
                     ->columnSpanFull(),
