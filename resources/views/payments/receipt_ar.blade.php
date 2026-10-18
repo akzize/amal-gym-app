@@ -23,12 +23,17 @@
         $associationLogo = $association?->logoDataUri();
         $centerName = $association?->name_arabic ?: 'مركز أمل للياقة البدنية';
         $subscriptionLabel = $payment->paymentType->name_ar ?? '—';
-        if ($payment->paymentType->id == App\Models\Payment::TYPE_CUSTOM) {
+        // A month of a multi-month subscription prints the whole subscription
+        $isSubscription = $payment->isSubscriptionMonth();
+        if ($isSubscription) {
             $subscriptionLabel = $payment->subscription->duration_months . ' شهر';
         }
-        $amount_due = $payment->amount_due ?? 0;
-        $amountPaid = $payment->amount_paid ?? 0;
-        $remainingBalance = $payment->amount_due - $payment->amount_paid ?? 0;
+        $covered = $payment->coveredPayments();
+        $amountGross = $covered->sum('amount_gross');
+        $discountTotal = $covered->sum('discount_total');
+        $amount_due = $covered->sum('amount_due');
+        $amountPaid = $covered->sum('amount_paid');
+        $remainingBalance = $amount_due - $amountPaid;
     @endphp
 
     <body class="flex items-center justify-center bg-white p-2" dir="rtl">
@@ -52,10 +57,10 @@
                 <div class="label">تاريخ الدفع</div>
                 <div class="value">{{ $date ?? now()->format('Y-m-d H:i') }}</div>
             </div>
-            @if ($payment->paymentType->id == App\Models\Payment::TYPE_CUSTOM)
+            @if ($payment->payment_type_id == App\Models\Payment::TYPE_MONTHLY && !$isSubscription && $payment->month_key)
                 <div class="row muted">
                     <div class="label">الدفعة لشهر</div>
-                    <div class="value">{{ $payment->applies_to_date }}</div>
+                    <div class="value">{{ \Carbon\Carbon::parse($payment->month_key)->format('Y-m') }}</div>
                 </div>
             @endif
             <div class="row muted">
@@ -78,16 +83,14 @@
                 <div class="label">الاشتراك</div>
                 <div class="value">{{ $subscriptionLabel ?? '—' }}</div>
             </div>
-            @if (
-                $payment->paymentType->id == App\Models\Payment::TYPE_CUSTOM ||
-                    $payment->paymentType->id == App\Models\Payment::TYPE_INSURANCE)
+            @if ($payment->subscription)
                 <div class="row">
                     <div class="label">بداية الاشتراك</div>
-                    <div class="value">{{ $payment->subscription->start_date }}</div>
+                    <div class="value">{{ $payment->subscription->start_date->format('Y-m-d') }}</div>
                 </div>
                 <div class="row">
                     <div class="label">نهاية الاشتراك</div>
-                    <div class="value">{{ $payment->subscription->end_date }}</div>
+                    <div class="value">{{ $payment->subscription->end_date->format('Y-m-d') }}</div>
                 </div>
             @endif
 
@@ -96,8 +99,8 @@
             <!-- Financials -->
             @php
                 $fmt = fn($n) => number_format((float) $n, 2, '.', ' ');
-                $mf = $fmt($amount_due ?? 0);
-                $pd = $fmt($proratedDiscount ?? 0);
+                // The fee line shows the list price; reductions and the net amount follow it
+                $mf = $fmt($discountTotal > 0 ? $amountGross : $amount_due);
                 $ap = $fmt($amountPaid ?? 0);
                 $prev = $fmt($previousBalance ?? 0);
                 $rem = $fmt($remainingBalance ?? 0);
@@ -113,10 +116,18 @@
                 <div class="label">{{ $paymentAmountLabel }}</div>
                 <div class="value amount">{{ $mf }} درهم</div>
             </div>
-            {{-- <div class="row">
-            <div class="label">خصم تناسبي</div>
-            <div class="value">- {{ $pd }} درهم</div>
-        </div> --}}
+            @if ($discountTotal > 0)
+                @foreach ($payment->reductions() as $discount)
+                    <div class="row">
+                        <div class="label">{{ $discount->label }}</div>
+                        <div class="value">- {{ $fmt($discount->amount) }} درهم</div>
+                    </div>
+                @endforeach
+                <div class="row">
+                    <div class="label">المبلغ المستحق</div>
+                    <div class="value amount">{{ $fmt($amount_due) }} درهم</div>
+                </div>
+            @endif
             <div class="row">
                 <div class="label">المبلغ المدفوع</div>
                 <div class="value amount">{{ $ap }} درهم</div>

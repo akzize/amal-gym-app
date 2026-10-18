@@ -30,15 +30,17 @@
         max-width: 100%;
         font-family: Arial, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif, Helvetica, "Courier New", monospace;
         font-size: 13px;
-        color: #111827;
+        /* thermal heads can't print grey or thin strokes: pure black, bold everywhere */
+        color: #000;
+        font-weight: 700;
         line-height: 1.3;
+        -webkit-font-smoothing: none;
         word-break: break-word;
     }
 
     .hr {
-        border-bottom: 1px dashed #222;
+        border-bottom: 2px dashed #000;
         margin: 6px 0;
-        opacity: 0.6;
     }
 
     /* columns: left label + right value */
@@ -50,8 +52,7 @@
     }
 
     .muted {
-        color: #374151;
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .center {
@@ -60,8 +61,7 @@
 
     /* compact small text for footer */
     .small {
-        font-size: 11px;
-        color: #374151;
+        font-size: 12px;
     }
 
     /* ensure long text wraps under label (for trainee/group names) */
@@ -87,24 +87,25 @@
     }
 
     .title {
-        font-size: 16px;
-        font-weight: 800;
+        font-size: 17px;
+        font-weight: 900;
     }
 
     .subtitle {
-        font-size: 13px;
-        font-weight: 700;
+        font-size: 14px;
+        font-weight: 800;
     }
 
     /* highlight amounts */
     .amount {
-        font-weight: 500;
+        font-size: 14px;
+        font-weight: 900;
     }
 
     /* THANK YOU centered and spaced */
     .thankyou {
         margin-top: 8px;
         /* letter-spacing: 0.06em; */
-        font-weight: 600;
+        font-weight: 800;
     }
 </style>
