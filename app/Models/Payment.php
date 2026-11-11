@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -138,6 +139,22 @@ class Payment extends Model
     public function reductions(): Collection
     {
         return $this->isSubscriptionMonth() ? $this->subscription->appliedDiscounts : $this->appliedDiscounts;
+    }
+
+    /**
+     * Settled insurance payments (paid, or free when the fee is 0) that are not in an insurance export yet.
+     */
+    public function scopeAwaitingInsuranceExport(Builder $query): Builder
+    {
+        return $query
+            ->where('payment_type_id', self::TYPE_INSURANCE)
+            ->whereIn('status', [self::STATUS_PAID, self::STATUS_FREE])
+            ->whereNull('insurance_export_id');
+    }
+
+    public function insuranceExport()
+    {
+        return $this->belongsTo(InsuranceExport::class);
     }
 
     public function subscription()

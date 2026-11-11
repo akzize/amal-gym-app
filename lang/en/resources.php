@@ -58,6 +58,19 @@ return [
         'duplicate_monthly_hint' => 'To add the rest, open the payment and add an installment.',
         'duplicate_monthly_error' => 'A monthly payment already exists for this trainee and group in this month.',
         'view_existing' => 'View payment',
+        'insurance_export' => [
+            'action' => 'Insurance export',
+            'heading' => 'Export the insured trainees',
+            'export' => 'List',
+            'new' => 'New export: :count paid insurance(s) not exported yet',
+            'previous' => 'Export n° :id of :date (:count)',
+            'format' => 'Format',
+            'download' => 'Download',
+            'nothing' => 'Nothing left to export',
+            'nothing_body' => 'Every paid insurance is already in an export. Pick a previous export to download it again.',
+            'filter' => 'Insurance not exported yet',
+            'column' => 'Insurance export',
+        ],
         'insurance' => [
             'for_association' => 'Insurance Amount for Association',
             'net' => 'Net Insurance Amount',
@@ -150,7 +163,8 @@ return [
         'pluralModelLabel' => 'Trainees',
         'full_name' => 'Full Name',
         'first_name' => 'First Name',
-        'last_name' => 'Last Name'
+        'last_name' => 'Last Name',
+        'cin' => 'National ID (CIN)',
     ],
     'sport' => [
         'label' => 'Sport',

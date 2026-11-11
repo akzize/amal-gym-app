@@ -39,6 +39,12 @@ class TraineeForm
                         TextInput::make('full_arabic_name')
                             ->label(__('resources.trainee.full_arabic_name'))
                             ->required(),
+                        // NOM on the insurance export
+                        TextInput::make('last_name')
+                            ->label(__('resources.trainee.last_name')),
+                        TextInput::make('cin')
+                            ->label(__('resources.trainee.cin'))
+                            ->maxLength(20),
                         Select::make('gender')
                             ->options(['male' => 'Male', 'female' => 'Female'])
                             ->label(__('resources.trainee.gender'))

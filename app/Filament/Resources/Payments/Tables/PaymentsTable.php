@@ -10,7 +10,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 
@@ -73,6 +75,10 @@ class PaymentsTable
                     ->dateTime()
                     ->formatStateUsing(fn($state) => $state ? date('d-m-Y', strtotime($state)) : null)
                     ->sortable(),
+                TextColumn::make('insurance_export_id')
+                    ->label(__('resources.payment.insurance_export.column'))
+                    ->formatStateUsing(fn($state) => "n° {$state}")
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -83,7 +89,9 @@ class PaymentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Filter::make('awaiting_insurance_export')
+                    ->label(__('resources.payment.insurance_export.filter'))
+                    ->query(fn(Builder $query) => $query->awaitingInsuranceExport()),
             ])
             ->recordActions([
                 EditAction::make()
