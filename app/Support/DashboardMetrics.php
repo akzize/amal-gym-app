@@ -210,14 +210,19 @@ class DashboardMetrics
     }
 
     /**
-     * Active subscriptions/insurances ending within the next $days days (from today, not the range).
+     * Active trainees whose insurance is in the given state today (expired, or ending soon), not the range.
      */
-    public static function expiringSubscriptions(int $days = 30): int
+    public static function traineesWithInsurance(string $state): int
     {
-        return Subscription::query()
-            ->where('status', 'active')
-            ->whereBetween('end_date', [CarbonImmutable::today()->toDateString(), CarbonImmutable::today()->addDays($days)->toDateString()])
-            ->count();
+        return Trainee::query()->active()->insuranceIn([$state])->count();
+    }
+
+    /**
+     * Active trainees with a multi-month subscription ending soon and not renewed (from today, not the range).
+     */
+    public static function traineesWithSubscriptionEndingSoon(): int
+    {
+        return Trainee::query()->active()->subscriptionEndingSoon()->count();
     }
 
     // ---- Helpers --------------------------------------------------------------------

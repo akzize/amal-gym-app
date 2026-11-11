@@ -155,6 +155,22 @@ class DashboardMetricsTest extends TestCase
             ->assertCountTableRecords(3);
     }
 
+    public function test_collected_table_filters_by_payment_type_and_totals_it(): void
+    {
+        // monthly: 300 + 100 + 150 + 300 = 850 over 4 installments, inscription: 50
+        Livewire::test(CollectedPaymentsTable::class, ['pageFilters' => self::FILTERS])
+            ->filterTable('payment_type', [Payment::TYPE_INSCRIPTION])
+            ->assertCountTableRecords(1)
+            ->assertSee(DashboardMetrics::money(50))
+            ->filterTable('payment_type', [Payment::TYPE_MONTHLY, Payment::TYPE_INSCRIPTION])
+            ->assertCountTableRecords(5)
+            ->filterTable('payment_type', [Payment::TYPE_MONTHLY])
+            ->assertCountTableRecords(4)
+            ->assertSee(DashboardMetrics::money(850))
+            ->filterTable('payment_type', [Payment::TYPE_INSURANCE])
+            ->assertCountTableRecords(0);
+    }
+
     public function test_defaults_to_the_last_six_months(): void
     {
         $metrics = DashboardMetrics::fromFilters(null);

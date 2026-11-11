@@ -198,6 +198,13 @@ return [
         'address' => 'العنوان',
         'dob' => 'تاريخ الميلاد',
         'cin' => 'رقم البطاقة الوطنية (CIN)',
+        'insurance' => [
+            'label' => 'التأمين',
+            'until' => 'التأمين ساري حتى',
+            'expired' => 'منتهي',
+            'expiring' => 'ينتهي قريبًا',
+            'none' => 'بدون تأمين',
+        ],
         'role' => 'الدور',
         'avatar' => 'الصورة الشخصية',
         'group' => 'المجموعة',
@@ -346,7 +353,9 @@ return [
         'unpaid_this_month' => 'لم يدفعوا رسوم هذا الشهر',
         'unpaid_this_month_description' => 'اضغط لعرض القائمة',
         'expiring_subscriptions' => 'اشتراكات تنتهي قريبًا',
-        'expiring_subscriptions_description' => 'خلال 30 يومًا القادمة',
+        'expiring_subscriptions_description' => 'خلال 30 يومًا القادمة، ولم تُجدَّد',
+        'insurance_to_renew' => 'تأمينات تحتاج إلى تجديد',
+        'insurance_to_renew_description' => ':expired منتهي · :expiring ينتهي خلال 30 يومًا',
 
         // charts & table
         'chart_collected_vs_outstanding' => 'المحصل والمتبقي حسب الشهر',

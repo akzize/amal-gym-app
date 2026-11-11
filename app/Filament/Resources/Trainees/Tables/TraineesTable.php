@@ -12,10 +12,13 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Torgodly\Html2Media\Actions\Html2MediaAction;
@@ -27,6 +30,7 @@ class TraineesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->with('groups.sport')->withInsuranceEnd())
             ->columns([
                 ImageColumn::make('photo_url')
                     ->label(__('resources.trainee.avatar'))
@@ -39,6 +43,34 @@ class TraineesTable
                 TextColumn::make('full_arabic_name')
                     ->label(__('resources.trainee.full_arabic_name'))
                     ->searchable(),
+                TextColumn::make('groups.name')
+                    ->label(__('resources.group.pluralModelLabel'))
+                    ->badge()
+                    ->placeholder('—'),
+                // the sports of the trainee's groups, each listed once
+                TextColumn::make('sports')
+                    ->label(__('resources.sport.name_plural'))
+                    ->state(fn(Trainee $record): array => $record->groups
+                        ->map(fn($group) => App::getLocale() == 'ar' ? ($group->sport?->name_ar ?: $group->sport?->name) : $group->sport?->name)
+                        ->filter()->unique()->values()->all())
+                    ->badge()
+                    ->color('gray')
+                    ->placeholder('—'),
+                // end of the latest insurance: red once it has passed, orange when it ends soon
+                TextColumn::make('insurance_ends_at')
+                    ->label(__('resources.trainee.insurance.until'))
+                    ->formatStateUsing(fn(string $state, Trainee $record): string => Carbon::parse($state)->format('d/m/Y')
+                        . (in_array($record->insuranceStatus(), [Trainee::INSURANCE_EXPIRED, Trainee::INSURANCE_EXPIRING])
+                            ? ' · ' . __('resources.trainee.insurance.' . $record->insuranceStatus())
+                            : ''))
+                    ->badge()
+                    ->color(fn(Trainee $record): string => match ($record->insuranceStatus()) {
+                        Trainee::INSURANCE_EXPIRED => 'danger',
+                        Trainee::INSURANCE_EXPIRING => 'warning',
+                        default => 'success',
+                    })
+                    ->placeholder('—')
+                    ->sortable(),
                 TextColumn::make('dob')
                     ->label(__('resources.trainee.dob'))
                     ->date()
@@ -68,6 +100,27 @@ class TraineesTable
                     ->falseLabel(__('resources.lifecycle.inactive'))
                     ->placeholder(__('resources.lifecycle.all'))
                     ->default(true),
+                SelectFilter::make('groups')
+                    ->label(__('resources.group.label'))
+                    ->relationship('groups', 'name')
+                    ->multiple()
+                    ->preload(),
+                // Same rules as the dashboard's insurance and subscription cards, which link here
+                SelectFilter::make('insurance')
+                    ->label(__('resources.trainee.insurance.label'))
+                    ->multiple()
+                    ->options([
+                        Trainee::INSURANCE_EXPIRED => __('resources.trainee.insurance.expired'),
+                        Trainee::INSURANCE_EXPIRING => __('resources.trainee.insurance.expiring'),
+                        Trainee::INSURANCE_NONE => __('resources.trainee.insurance.none'),
+                    ])
+                    ->query(fn(Builder $query, array $data): Builder => $query->when(
+                        filled($data['values'] ?? null),
+                        fn(Builder $query) => $query->insuranceIn($data['values']),
+                    )),
+                Filter::make('subscription_ending_soon')
+                    ->label(__('resources.dashboard.expiring_subscriptions'))
+                    ->query(fn(Builder $query): Builder => $query->subscriptionEndingSoon()),
                 // Same rule as the dashboard's "unpaid this month" card, which links here
                 Filter::make('unpaid_this_month')
                     ->label(__('resources.dashboard.unpaid_this_month'))

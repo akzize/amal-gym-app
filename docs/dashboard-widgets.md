@@ -50,7 +50,8 @@ The subheading shows the active period (`from -> to`). Cards in two groups:
 |------|---------------|--------------------|--------|
 | **Active trainees** | Number of currently active trainees, plus "new trainees" in the range as description | Active count = all `is_active` trainees (no date). New = `created_at` in range | Count: **No**. "New" description: **Yes** |
 | **Unpaid this month** | Active trainees whose monthly fee for the **current month** is not settled. Clicking opens the trainees list with the same filter | `Trainee::unpaidForMonth(now)` | **No** (always current month) |
-| **Expiring subscriptions** | Active subscriptions/insurances ending in the next 30 days | `status = active` and `end_date` between today and today + 30 | **No** (always from today) |
+| **Insurance to renew** | Active trainees whose latest insurance has expired or ends in the next 30 days. Clicking opens the trainees list with the same filter | `Trainee::insuranceIn([expired, expiring])`, from the latest insurance `end_date` | **No** (always from today) |
+| **Subscriptions ending soon** | Active trainees with a multi-month subscription ending in the next 30 days and not renewed for the same group. Clicking opens the trainees list with the same filter | `Trainee::subscriptionEndingSoon()` | **No** (always from today) |
 
 ---
 

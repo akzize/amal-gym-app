@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Trainees\TraineeResource;
+use App\Models\Trainee;
 use App\Support\DashboardMetrics;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
@@ -43,6 +44,9 @@ class StatsOverview extends StatsOverviewWidget
         $previous = $metrics->previous()->collected();
         $rate = $metrics->collectionRate();
         $unpaid = DashboardMetrics::traineesWithUnpaidMonthlyFee();
+        $insuranceExpired = DashboardMetrics::traineesWithInsurance(Trainee::INSURANCE_EXPIRED);
+        $insuranceExpiring = DashboardMetrics::traineesWithInsurance(Trainee::INSURANCE_EXPIRING);
+        $subscriptionsEnding = DashboardMetrics::traineesWithSubscriptionEndingSoon();
 
         return [
             // ---- Money ----
@@ -77,10 +81,23 @@ class StatsOverview extends StatsOverviewWidget
                 ->color($unpaid > 0 ? 'danger' : 'success')
                 // Opens the trainees list with the very same filter
                 ->url(TraineeResource::getUrl('index', ['filters' => ['unpaid_this_month' => ['isActive' => true]]])),
-            Stat::make(__('resources.dashboard.expiring_subscriptions'), (string) DashboardMetrics::expiringSubscriptions())
+            // Both open the trainees list with the very same filter
+            Stat::make(__('resources.dashboard.insurance_to_renew'), (string) ($insuranceExpired + $insuranceExpiring))
+                ->description(__('resources.dashboard.insurance_to_renew_description', ['expired' => $insuranceExpired, 'expiring' => $insuranceExpiring]))
+                ->descriptionIcon('heroicon-m-arrow-top-right-on-square')
+                ->icon('heroicon-o-shield-exclamation')
+                ->color(match (true) {
+                    $insuranceExpired > 0 => 'danger',
+                    $insuranceExpiring > 0 => 'warning',
+                    default => 'success',
+                })
+                ->url(TraineeResource::getUrl('index', ['filters' => ['insurance' => ['values' => [Trainee::INSURANCE_EXPIRED, Trainee::INSURANCE_EXPIRING]]]])),
+            Stat::make(__('resources.dashboard.expiring_subscriptions'), (string) $subscriptionsEnding)
                 ->description(__('resources.dashboard.expiring_subscriptions_description'))
+                ->descriptionIcon('heroicon-m-arrow-top-right-on-square')
                 ->icon('heroicon-o-clock')
-                ->color('warning'),
+                ->color($subscriptionsEnding > 0 ? 'warning' : 'success')
+                ->url(TraineeResource::getUrl('index', ['filters' => ['subscription_ending_soon' => ['isActive' => true]]])),
         ];
     }
 
