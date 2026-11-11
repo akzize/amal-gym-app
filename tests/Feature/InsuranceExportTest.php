@@ -115,13 +115,47 @@ class InsuranceExportTest extends TestCase
         $zip = new ZipArchive();
         $this->assertTrue($zip->open($docx));
         $document = $zip->getFromName('word/document.xml');
+        $relationships = $zip->getFromName('word/_rels/document.xml.rels');
+        $hasLogo = $zip->locateName('word/media/federation.png') !== false;
         $zip->close();
         $this->assertNotFalse(simplexml_load_string($document), 'document.xml is well-formed');
         $this->assertStringContainsString('EL KHYATI &amp; CO', $document);
-        $this->assertStringContainsString('LICENCE N°', $document);
+
+        // the federation's form: season of the export, its 25 numbered lines, the count and the logos
+        $season = $export->created_at->month >= 9 ? $export->created_at->year : $export->created_at->year - 1;
+        $this->assertStringContainsString("SAISON SPORTIVE {$season}–" . ($season + 1), $document);
+        $this->assertStringContainsString('Licence N°', $document);
+        $this->assertStringContainsString(config('insurance.bordereau.contract'), $document);
+        $this->assertStringContainsString('Bordereau : 1<', $document);
+        $this->assertSame(1 + 25, substr_count($document, '<w:trHeight w:val="29') + substr_count($document, '<w:trHeight w:val="300"'));
+        $this->assertTrue($hasLogo);
+        $this->assertSame(3, substr_count($relationships, '<Relationship '));
+        $this->assertSame(4, substr_count($document, '<w:drawing>'));
 
         unlink($xlsx);
         unlink($docx);
+    }
+
+    public function test_word_form_continues_on_a_new_page_after_25_trainees(): void
+    {
+        foreach (range(1, 27) as $number) {
+            $this->payment($this->trainee("t{$number}", sprintf('name%02d', $number)));
+        }
+        $export = InsuranceExport::createFromPending(auth()->id());
+
+        $docx = tempnam(sys_get_temp_dir(), 'test');
+        InsuranceRoster::write($export, 'docx', $docx);
+        $zip = new ZipArchive();
+        $zip->open($docx);
+        $document = $zip->getFromName('word/document.xml');
+        $zip->close();
+        unlink($docx);
+
+        $this->assertNotFalse(simplexml_load_string($document));
+        $this->assertSame(1, substr_count($document, '<w:br w:type="page"/>'));
+        $this->assertStringContainsString('Bordereau : 25<', $document);
+        $this->assertStringContainsString('Bordereau : 2<', $document);
+        $this->assertStringContainsString('NAME27', $document);
     }
 
     public function test_the_payments_page_downloads_a_new_or_a_previous_export(): void
